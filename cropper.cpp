@@ -52,7 +52,8 @@ void usage()
 	   << "   -L [labelspecs]\t<text>,<lon>,<lat>,<dx>,<dy>,<align>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -I [imagespecs]\t<imagefile>,<x>,<y>,..." << endl
-	   << "   -A\tKeep alpha channel" << endl
+	   << "   -Z [RGBA]\tReduce color accuracy, default = 5550" << endl
+	   << "   -A\t\tKeep alpha channel" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
 	   << "   -C" << endl
