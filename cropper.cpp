@@ -935,8 +935,6 @@ void draw_labels(Imagine::NFmiImage & theImage,
 	  int xx = FmiRound(xy.X() + dx - theXoff);
 	  int yy = FmiRound(xy.Y() + dy - theYoff);
 
-	  cout << text << " at " << xx << ' ' << yy << endl;
-
 	  // Create the face and setup the background
 
 	  Imagine::NFmiFace face(font,width,height);
