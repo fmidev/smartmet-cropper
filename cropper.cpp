@@ -812,6 +812,67 @@ void draw_center(Imagine::NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw another image onto the image
+ *
+ * \param theImage The image to draw onto
+ * \param theOptions The options string
+ */
+// ----------------------------------------------------------------------
+
+void draw_image(Imagine::NFmiImage & theImage,
+				const string & theOptions)
+{
+
+  // Parse the options
+
+  const vector<string> parts = NFmiStringTools::Split(theOptions);
+  if(parts.size() % 3 != 0)
+	throw runtime_error("Option -I argument should be of form image,x,y,...");
+
+  for(unsigned int i=0; i<parts.size(); i+=3)
+	{
+	  const string filename = parts[i];
+	  const int x = NFmiStringTools::Convert<int>(parts[i+1]);
+	  const int y = NFmiStringTools::Convert<int>(parts[i+2]);
+
+	  // Establish alignment and corrected coordinates
+	  
+	  Imagine::NFmiAlignment align = Imagine::kFmiAlignNorthWest;
+	  int xx = x;
+	  int yy = y;
+	  if(x > 0 && y > 0)
+		;
+	  else if(x > 0 && y < 0)
+		{
+		  yy = theImage.Height() + y;
+		  align = Imagine::kFmiAlignSouthWest;
+		}
+	  else if(x < 0 && y > 0)
+		{
+		  xx = theImage.Width() + x;
+		  align = Imagine::kFmiAlignNorthEast;
+		}
+	  else
+		{
+		  xx = theImage.Width() + x;
+		  yy = theImage.Height() + y;
+		  align = Imagine::kFmiAlignSouthEast;
+		}
+	  
+	  // Render the image
+	  
+	  Imagine::NFmiImage img(filename);
+	  theImage.Composite(img,
+						 Imagine::NFmiColorTools::kFmiColorOnOpaque,
+						 align,
+						 xx,
+						 yy,
+						 1.0);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief The main algorithm
  */
 // ----------------------------------------------------------------------
@@ -827,7 +888,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!M!h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!M!I!h");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -857,6 +918,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("T",cmdline.OptionValue('T')));
 	  if(cmdline.isOption('M'))
 		options.insert(Options::value_type("M",cmdline.OptionValue('M')));
+	  if(cmdline.isOption('I'))
+		options.insert(Options::value_type("I",cmdline.OptionValue('I')));
 
 	}
 
@@ -870,6 +933,7 @@ int domain(int argc, const char * argv[])
   const bool has_option_o = (options.find("o") != end);
   const bool has_option_T = (options.find("T") != end);
   const bool has_option_M = (options.find("M") != end);
+  const bool has_option_I = (options.find("I") != end);
   const bool has_option_C = (options.find("C") != end);
 
   // throw runtime_error(shit.str());
@@ -943,6 +1007,11 @@ int domain(int argc, const char * argv[])
 	  int x1,y1,width,height;
 	  parse_geometry(options.find("g")->second,x1,y1,width,height);
 	  cropped.reset(crop_corner(image,x1,y1,width,height).release());
+	}
+
+  if(has_option_I)
+	{
+	  draw_image(*cropped,options.find("I")->second);
 	}
 
   if(has_option_T)

@@ -40,6 +40,8 @@ Komentorivioptiot ovat
 <dd>Piirr‰ annettu kuva projektiokeskipisteen p‰‰lle</dd>
 <dt>-T [aikaleimaspeksi]</dt>
 <dd>Piirr‰ aikaleima kuvaan</dd>
+<dt>-I [kuvaspeksi]</dt>
+<dd>Liit‰ kuvan p‰‰lle toinen kuva, esim. legenda</dd>
 </dl>
 </p>
 
@@ -151,6 +153,27 @@ ilman pisteeseen erikseen piirrett‰v‰‰ markkeria.
 
 Jos annettu nimi on "square", piirret‰‰n pisteesen pieni musta neliˆ.
 Vaihtoehtoisesti nimi voi olla muotoa "square:color".
+
+\section cropper_kuva Kuvan liitt‰minen kuvan p‰‰lle
+
+Optiolla \c -I voi m‰‰ritell‰ kuvan, esim. legendan, joka piirret‰‰n
+haluttuun kohtaan kuvaa.
+
+Optiolle annetaan argumentti, joka on muotoa
+\code
+image,x,y
+\endcode
+miss‰
+
+ - image on p‰‰lle piirrett‰v‰n kuvan polku
+ - x on kuvan x-koordinaatti (negatiivinen on et‰isyys oikeasta reunasta)
+ - y on kuvan y-koordinaatti (negatiivinen on et‰isyys alareunasta)
+
+Jos kuvan p‰‰lle halutaan liitt‰‰ monta kuvaa, liitet‰‰n argumentit saman
+\c -I option per‰‰n, esimerkiksi
+\code
+image1,x1,y1,image2,x2,y2,...
+\endcode
 
 \section cropper_kartat Tietokantam‰‰rittelyt
 
