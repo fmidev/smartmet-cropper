@@ -10,6 +10,7 @@
 #include "NFmiStringTools.h"
 
 #include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <map>
 #include <string>
@@ -38,6 +39,41 @@ void usage()
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Format a time for HTTP output
+ *
+ * The output is generated with strftime using format
+ * "%a,  %d  %b  %Y  %H:%M:%S  %z" as adviced in the
+ * man-pages for strftime.
+ */
+// ----------------------------------------------------------------------
+
+const string format_time(const ::time_t theTime)
+{
+  const struct ::tm * t = localtime(&theTime);
+  const ::size_t MAXLEN = 100;
+  char buffer[MAXLEN];
+  ::size_t n = strftime(buffer,MAXLEN,"%a, %d %b %Y %H:%M:%S %z",t);
+  string ret(buffer,0,n);
+  return ret;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Output a "not modified" response if possible
+ *
+ * \param theFile The file whose modification time is requested
+ * \return True, if a not-modified response was sent
+ */
+// ----------------------------------------------------------------------
+
+bool not_modified(const string & theFile)
+{
+  return false;
+  // cout << "HTTP/1.0 304 Not Modified" << endl;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Output the given imagefile
  */
 // ----------------------------------------------------------------------
@@ -48,8 +84,16 @@ void http_output_image(const string & theFile)
   if(!in)
 	throw runtime_error("Image '"+theFile+"' was lost!");
 
+  // We expire everything in 1 hour
+  const long maxage = 3600;
+  ::time_t expiration_time = time(0) + maxage;
+  ::time_t last_modified = NFmiFileSystem::FileModificationTime(theFile);
+
   cout << "HTTP/1.1 200 OK" << endl
 	   << "Content-Type: image/png" << endl
+	   << "Expires: " << format_time(expiration_time) << endl
+	   << "Last-Modified: " << format_time(last_modified) << endl
+	   << "Cache-Control: max-age=" << maxage << endl
 	   << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << endl
 	   << endl
 	   << in.rdbuf();
@@ -117,6 +161,11 @@ int domain(int argc, const char * argv[])
   const string imagefile = options.find("f")->second;
   if(!NFmiFileSystem::FileExists(imagefile))
 	throw runtime_error("The desired image '"+imagefile+"' does not exist");
+
+  // Handle a possible HTTP_IF_MODIFIED_SINCE query
+
+  if(not_modified(imagefile))
+	return 0;
 
   // Quick special case
 
