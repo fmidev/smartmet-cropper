@@ -41,8 +41,8 @@ void usage()
 	   << endl
 	   << "   -g [geometry]\t<width>x<height>+<x1>+<y1>" << endl
 	   << "   -c [centergeometry]\t<width>x<height>+<xc>+<yc>" << endl
-	   << "   -l [latlongeometry]\t<width>x<height>+<lon,lat>/<mapname>" << endl
-	   << "   -p [namegeometry]\t<width>x<height>+<placename>/<mapname>" << endl
+	   << "   -l [latlongeometry]\t<width>x<height>+<lon,lat>:<mapname>" << endl
+	   << "   -p [namegeometry]\t<width>x<height>+<placename>:<mapname>" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
 	   << "   -C" << endl
