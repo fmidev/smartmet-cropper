@@ -543,6 +543,113 @@ Imagine::NFmiColorTools::Color parse_color(const string & theColor)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Extract YYYYMMDDHHMI timestamps from given string
+ *
+ * \param theString The string from which to extract the stamps
+ * \return Vector of found timestamp strings
+ */
+// ----------------------------------------------------------------------
+
+const vector<string> extract_timestamps(const string & theString)
+{
+  vector<string> ret;
+  
+  string::size_type pos1 = 0;
+
+  while(pos1 < theString.size())
+	{
+	  string::size_type pos2 = pos1;
+	  while(pos2<theString.size() && ::isdigit(theString[pos2]))
+		++pos2;
+
+	  if(pos2-pos1 < 12)
+		pos1 = pos2 + 1;
+	  else
+		{
+		  ret.push_back(theString.substr(pos1,12));
+		  pos1 += 12;
+		}
+	}
+
+  return ret;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Parse a timestamp of form YYYYMMDDHHMI
+ */
+// ----------------------------------------------------------------------
+
+const ::tm parse_stamp(const string & theStamp)
+{
+  ::tm ret;
+  ret.tm_sec = 0;
+  ret.tm_min  = NFmiStringTools::Convert<int>(theStamp.substr(10,2));
+  ret.tm_hour = NFmiStringTools::Convert<int>(theStamp.substr(8,2));
+  ret.tm_mday = NFmiStringTools::Convert<int>(theStamp.substr(6,2));
+  ret.tm_mon  = NFmiStringTools::Convert<int>(theStamp.substr(4,2)) - 1;
+  ret.tm_year = NFmiStringTools::Convert<int>(theStamp.substr(0,4)) - 1900;
+  ret.tm_yday = -1;
+  ret.tm_isdst = -1;
+  return ret;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Make the timestamp text
+ */
+// ----------------------------------------------------------------------
+
+string make_timestamp(const string & theFilename,
+					  const string & theType,
+					  const string & theFormat)
+{
+  string ret;
+  
+  const vector<string> stamps = extract_timestamps(theFilename);
+  const string obsstamp = (stamps.size() >= 1 ? stamps[0] : "");
+  const string forstamp = (stamps.size() >= 2 ? stamps[1] : "");
+
+  const int MAXSIZE = 100;
+  char buffer[MAXSIZE+1];
+
+  ::tm obstime;
+  ::tm fortime;
+
+  if(!obsstamp.empty()) obstime = parse_stamp(obsstamp);
+  if(!forstamp.empty()) fortime = parse_stamp(forstamp);
+
+  if(theType == "obs" && !obsstamp.empty())
+	{
+	  ::strftime(buffer,MAXSIZE,theFormat.c_str(),&obstime);
+	  ret = buffer;
+	}
+  else if(theType == "for" && !forstamp.empty())
+	{
+	  ::strftime(buffer,MAXSIZE,theFormat.c_str(),&fortime);
+	  ret = buffer;
+	}
+  else if(theType == "forobs" && !forstamp.empty())
+	{
+	  ::strftime(buffer,MAXSIZE,theFormat.c_str(),&fortime);
+	  ret = buffer;
+	  // append forecast length
+	  ::time_t otime = ::mktime(&obstime);
+	  ::time_t ftime = ::mktime(&fortime);
+	  int hours = (otime-ftime)/3600; 
+	  ret += ' ';
+	  ret += (hours < 0 ? '-' : '+');
+	  ret += NFmiStringTools::Convert(hours);
+	}
+  else
+	{
+	  ret = theFormat;
+	}
+  return ret;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw a timestamp onto the image
  *
  * \param theImage The image to draw into
@@ -551,11 +658,12 @@ Imagine::NFmiColorTools::Color parse_color(const string & theColor)
 // ----------------------------------------------------------------------
 
 void draw_timestamp(Imagine::NFmiImage & theImage,
-					const string & theOptions)
+					const string & theOptions,
+					const string & theFilename)
 {
   // Initialize the defaults
 
-  string format = "%H:%N";
+  string format = "%H:%M";
   string type = "obs";
   string font = "misc/6x13.pcf.gz:6x13";
   string color = "black";
@@ -573,15 +681,16 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 
   // Optional parts
 
-  vector<string>::size_type i = 2;
-  if(parts.size() > i && !parts[i].empty()) format = parts[i++];
-  if(parts.size() > i && !parts[i].empty()) font = parts[i++];
-  if(parts.size() > i && !parts[i].empty()) color = parts[i++];
-  if(parts.size() > i && !parts[i].empty()) backgroundcolor = parts[i++];
+  vector<string>::size_type i = 1;
+  if(parts.size() > i+1 && !parts[++i].empty()) format = parts[i];
+  if(parts.size() > i+1 && !parts[++i].empty()) type = parts[i];
+  if(parts.size() > i+1 && !parts[++i].empty()) font = parts[i];
+  if(parts.size() > i+1 && !parts[++i].empty()) color = parts[i];
+  if(parts.size() > i+1 && !parts[++i].empty()) backgroundcolor = parts[i];
 
   // Extra parts
 
-  if(parts.size() > i)
+  if(parts.size() > i+1)
 	throw runtime_error("Too many -T parts in option '"+theOptions+"'");
 
   // Parse the font option
@@ -634,7 +743,7 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
   
   // Create the text to be rendered
 
-  string text = "shit";
+  string text = make_timestamp(theFilename,type,format);
 
   // Create the face and setup the background
 
@@ -776,7 +885,7 @@ int domain(int argc, const char * argv[])
 
   if(has_option_T)
 	{
-	  draw_timestamp(*cropped,options.find("T")->second);
+	  draw_timestamp(*cropped,options.find("T")->second,imagefile);
 	}
 
   if(has_option_o)
