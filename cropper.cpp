@@ -51,6 +51,7 @@ void usage()
 	   << "   -L [labelspecs]\t<text>,<lon>,<lat>,<dx>,<dy>,<align>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -I [imagespecs]\t<imagefile>,<x>,<y>,..." << endl
+	   << "   -A\tKeep alpha channel" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
 	   << "   -C" << endl
@@ -815,7 +816,7 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 
   // Create the face and setup the background
 
-  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+  Imagine::NFmiFace face(font,width,height);
   face.Background(true);
   face.BackgroundColor(backcolor);
   face.BackgroundMargin(xmargin,ymargin);
@@ -938,7 +939,7 @@ void draw_labels(Imagine::NFmiImage & theImage,
 
 	  // Create the face and setup the background
 
-	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+	  Imagine::NFmiFace face(font,width,height);
 	  face.Background(true);
 	  face.BackgroundColor(backcolor);
 	  face.BackgroundMargin(xmargin,ymargin);
@@ -1076,7 +1077,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!Ah");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -1112,6 +1113,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("I",cmdline.OptionValue('I')));
 	  if(cmdline.isOption('L'))
 		options.insert(Options::value_type("L",cmdline.OptionValue('L')));
+	  if(cmdline.isOption('A'))
+		options.insert(Options::value_type("A","1"));
 
 	}
 
@@ -1129,6 +1132,7 @@ int domain(int argc, const char * argv[])
   const bool has_option_I = (options.find("I") != end);
   const bool has_option_C = (options.find("C") != end);
   const bool has_option_L = (options.find("L") != end);
+  const bool has_option_A = (options.find("A") != end);
 
   // -o does not modify the image
   const bool has_modifying_options
@@ -1174,6 +1178,9 @@ int domain(int argc, const char * argv[])
 	}
 
   auto_ptr<Imagine::NFmiImage> cropped(new Imagine::NFmiImage(imagefile));
+  cropped->SaveAlpha(false);
+  if(has_option_A && options.find("A")->second != "0")
+	cropped->SaveAlpha(true);
 
   bool has_center = false;
   int xm,ym;

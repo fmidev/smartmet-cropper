@@ -46,6 +46,8 @@ Komentorivioptiot ovat
 <dd>Aseta aikavyöhyke. Oletusarvo on Europe/Helsinki</dd>
 <dt>-I [kuvaspeksi]</dt>
 <dd>Liitä kuvan päälle toinen kuva, esim. legenda</dd>
+<dt>-A</dt>
+<dd>Tallenna myös kuvan alpha-kanava</dd>
 </dl>
 </p>
 
@@ -74,7 +76,7 @@ Koko \c QUERYSTRING oletetaan cryptatuksi php:n palcrypt käskyllä!
 </p>
 <p>
 \c QUERYSTRING muuttujasta tunnistetaan komentorivioptioita
-vastaavat muuttujat, eli C, f, g, c, p, l, M, T ja t mutta ei optiota o.
+vastaavat muuttujat, eli C, f, g, c, p, l, M, T, t ja A mutta ei optiota o.
 Ylimääräiset muuttujat jätetään huomioimatta ilman virheilmoitusta.
 </p>
 
