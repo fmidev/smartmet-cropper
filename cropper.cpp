@@ -11,6 +11,7 @@
 #include "NFmiAreaFactory.h"
 #include "NFmiCmdLine.h"
 #include "NFmiFileSystem.h"
+#include "NFmiLocationFinder.h"
 #include "NFmiStringTools.h"
 
 #include <cstdlib>
@@ -153,6 +154,33 @@ auto_ptr<NFmiArea> create_map(const string & theMap)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Establish the coordinate for a named location
+ *
+ * Throws if the location name is unknown
+ *
+ * \param theName The location name
+ * \return The location longitude and latitude
+ */
+// ----------------------------------------------------------------------
+
+const NFmiPoint find_location(const string theName)
+{
+  const string coordfile = "/data/share/coordinates/kaikki.txt";
+
+  NFmiLocationFinder finder;
+  if(!finder.AddFile(coordfile,false))
+	throw runtime_error("Failed to read '"+coordfile+"'");
+
+  const NFmiPoint lonlat = finder.Find(theName);
+  if(finder.LastSearchFailed())
+	throw runtime_error("Location name '"+theName+"' coordinates unknown");
+  
+  return lonlat;
+  
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Output the given imagefile
  */
 // ----------------------------------------------------------------------
@@ -258,7 +286,7 @@ void parse_center_geometry(const string & theGeometry,
 /*!
  * \brief Parse a latlon geometry string
  *
- * The string format is <width>x<height>+<lon>+<lat>/<mapname>
+ * The string format is <width>x<height>+<lon>+<lat>:<mapname>
  *
  * Throws if parsing the string fails.
  *
@@ -284,7 +312,7 @@ void parse_latlon_geometry(const string & theGeometry,
   double lon,lat;
   char ch1,ch2;
   geom >> width >> ch1 >> height >> lon >> lat >> ch2 >> mapname;
-  if(geom.fail() || ch1 != 'x' || ch2 != '/')
+  if(geom.fail() || ch1 != 'x' || ch2 != ':')
 	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
 
   if(lon<-180 || lon>180)
@@ -296,6 +324,51 @@ void parse_latlon_geometry(const string & theGeometry,
   auto_ptr<NFmiArea> area = create_map(mapname);
   
   const NFmiPoint center = area->ToXY(NFmiPoint(lon,lat));
+
+  xc = static_cast<int>(0.5+center.X());
+  yc = static_cast<int>(0.5+center.Y());
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Parse a named geometry string
+ *
+ * The string format is <width>x<height>+<placename>:<mapname>
+ *
+ * Throws if parsing the string fails.
+ *
+ * \param theGeometry The geometry string
+ * \param xc Reference to variable in which to store xc
+ * \param yc Reference to variable in which to store yc
+ * \param width Reference to variable in which to store width
+ * \param height Reference to variable in which to store height
+ */
+// ----------------------------------------------------------------------
+
+void parse_named_geometry(const string & theGeometry,
+						  int & xc,
+						  int & yc,
+						  int & width,
+						  int & height)
+{
+  if(theGeometry.empty())
+	throw runtime_error("The geometry specification is empty!");
+
+  istringstream geom(theGeometry);
+  char ch1,ch2;
+  geom >> width >> ch1 >> height >> ch2;
+  string cityname,mapname;
+  getline(geom,cityname,':');
+  getline(geom,mapname);
+  if(geom.fail() || ch1 != 'x' || ch2 != '+')
+	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
+  
+  const NFmiPoint city = find_location(cityname);
+
+  auto_ptr<NFmiArea> area = create_map(mapname);
+  
+  const NFmiPoint center = area->ToXY(city);
 
   xc = static_cast<int>(0.5+center.X());
   yc = static_cast<int>(0.5+center.Y());
@@ -477,7 +550,9 @@ int domain(int argc, const char * argv[])
 
   if(has_option_p)
 	{
-	  throw runtime_error("Placenames not supported yet");
+	  int xc,yc,width,height;
+	  parse_named_geometry(options.find("p")->second,xc,yc,width,height);
+	  cropped.reset(crop_center(image,xc,yc,width,height).release());
 	}
   if(has_option_l)
 	{
