@@ -407,7 +407,7 @@ auto_ptr<Imagine::NFmiImage> crop_corner(const Imagine::NFmiImage & theImage,
   int y2 = min(theImage.Height(),y1+height);
   // And then the possibly adjusted start points are
   x1 = x2-width;
-  y1 = y2-width;
+  y1 = y2-height;
 
   auto_ptr<Imagine::NFmiImage> image(new Imagine::NFmiImage(width,height));
   for(int i=x1; i<x2;i++)
@@ -451,7 +451,7 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
   int y2 = min(theImage.Height(),y1+height);
   // And then the possibly adjusted start points are
   x1 = x2-width;
-  y1 = y2-width;
+  y1 = y2-height;
 
   auto_ptr<Imagine::NFmiImage> image(new Imagine::NFmiImage(width,height));
   for(int i=x1; i<x2;i++)
