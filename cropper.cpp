@@ -231,10 +231,16 @@ auto_ptr<NFmiArea> create_map(const string & theMap)
 	throw runtime_error("Failed to open system file '"+areafile+"' for reading");
 
   // Seek the first "projection" token, the description follows
+  // However we must be sure to skip comment rows
+
   string token;
   while(in >> token)
 	{
-	  if(token == "projection")
+	  if(token == "#")
+		{
+		  in.ignore(1000000,'\n');
+		}
+	  else if(token == "projection")
 		{
 		  in >> token;
 		  return NFmiAreaFactory::Create(token);
