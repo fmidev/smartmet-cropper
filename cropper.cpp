@@ -38,6 +38,7 @@ void usage()
 	   << endl
 	   << "   -g [geometry]\t<width>x<height>+<x1>+<y1>" << endl
 	   << "   -c [centergeometry]\t<width>x<height>+<xc>+<yc>" << endl
+	   << "   -l [latlongeometry]\t<width>x<height>+<lon,lat>/<mapname>" << endl
 	   << "   -p [namegeometry]\t<width>x<height>+<placename>/<mapname>" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
@@ -320,7 +321,7 @@ int domain(int argc, const char * argv[])
 	options = NFmiStringTools::ParseQueryString();
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!p!o!h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!h");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -340,6 +341,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("g",cmdline.OptionValue('g')));
 	  if(cmdline.isOption('c'))
 		options.insert(Options::value_type("c",cmdline.OptionValue('c')));
+	  if(cmdline.isOption('l'))
+		options.insert(Options::value_type("l",cmdline.OptionValue('l')));
 	  if(cmdline.isOption('p'))
 		options.insert(Options::value_type("p",cmdline.OptionValue('p')));
 	  if(cmdline.isOption('o'))
@@ -353,12 +356,13 @@ int domain(int argc, const char * argv[])
   const bool has_option_g = (options.find("g") != end);
   const bool has_option_c = (options.find("c") != end);
   const bool has_option_p = (options.find("p") != end);
+  const bool has_option_l = (options.find("l") != end);
   const bool has_option_o = (options.find("o") != end);
 
   if(!has_option_f)
 	throw runtime_error("Must give image name to be cropped");
 
-  if(has_option_g + has_option_c + has_option_p > 1)
+  if(has_option_g + has_option_c + has_option_p + has_option_l > 1)
 	throw runtime_error("Too many cropping geometries defined, use only one");
 
   // Check the image exists
@@ -374,7 +378,7 @@ int domain(int argc, const char * argv[])
 
   // Quick special case
 
-  if(has_option_g + has_option_c + has_option_p == 0)
+  if(has_option_g + has_option_c + has_option_p + has_option_l == 0)
 	{
 	  if(has_option_o)
 		NFmiFileSystem::CopyFile(imagefile,options.find("o")->second);
@@ -390,6 +394,10 @@ int domain(int argc, const char * argv[])
   if(has_option_p)
 	{
 	  throw runtime_error("Placenames not supported yet");
+	}
+  if(has_option_l)
+	{
+	  throw runtime_error("Latlon coordinates not supported yet");
 	}
   if(has_option_c)
 	{
