@@ -5,6 +5,7 @@
  */
 // ======================================================================
 
+#include "NFmiAlignment.h"
 #include "NFmiArea.h"
 #include "NFmiAreaFactory.h"
 #include "NFmiCmdLine.h"
@@ -46,7 +47,9 @@ void usage()
 	   << "   -c [centergeometry]\t<width>x<height>+<xc>+<yc>" << endl
 	   << "   -l [latlongeometry]\t<width>x<height>+<lon>+<lat>:<mapname>" << endl
 	   << "   -p [namegeometry]\t<width>x<height>+<placename>:<mapname>" << endl
-	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<backgroundcolor>" << endl
+	   << "   -M [image]\t<filename> or square or square:color" << endl
+	   << "   -L [labelspecs]\t<text>,<lon>,<lat>,<dx>,<dy>,<align>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
+	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -I [imagespecs]\t<imagefile>,<x>,<y>,..." << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
@@ -385,14 +388,15 @@ void parse_center_geometry(const string & theGeometry,
  * \param yc Reference to variable in which to store yc
  * \param width Reference to variable in which to store width
  * \param height Reference to variable in which to store height
+ * \return The projection
  */
 // ----------------------------------------------------------------------
 
-void parse_latlon_geometry(const string & theGeometry,
-						   int & xc,
-						   int & yc,
-						   int & width,
-						   int & height)
+auto_ptr<NFmiArea> parse_latlon_geometry(const string & theGeometry,
+										 int & xc,
+										 int & yc,
+										 int & width,
+										 int & height)
 {
   if(theGeometry.empty())
 	throw runtime_error("The geometry specification is empty!");
@@ -418,6 +422,7 @@ void parse_latlon_geometry(const string & theGeometry,
   xc = static_cast<int>(0.5+center.X());
   yc = static_cast<int>(0.5+center.Y());
 
+  return area;
 }
 
 // ----------------------------------------------------------------------
@@ -436,11 +441,11 @@ void parse_latlon_geometry(const string & theGeometry,
  */
 // ----------------------------------------------------------------------
 
-void parse_named_geometry(const string & theGeometry,
-						  int & xc,
-						  int & yc,
-						  int & width,
-						  int & height)
+auto_ptr<NFmiArea> parse_named_geometry(const string & theGeometry,
+										int & xc,
+										int & yc,
+										int & width,
+										int & height)
 {
   if(theGeometry.empty())
 	throw runtime_error("The geometry specification is empty!");
@@ -463,6 +468,8 @@ void parse_named_geometry(const string & theGeometry,
   xc = static_cast<int>(0.5+center.X());
   yc = static_cast<int>(0.5+center.Y());
 
+  return area;
+
 }
 
 // ----------------------------------------------------------------------
@@ -474,6 +481,8 @@ void parse_named_geometry(const string & theGeometry,
  * \param theY1 The corner Y-coordinate
  * \param theWidth The width
  * \param theHeight The height
+ * \param theXoff The new X-origin
+ * \param theYoff The new Y-origin
  * \return auto_ptr to the cropped image
  */
 // ----------------------------------------------------------------------
@@ -482,7 +491,9 @@ auto_ptr<Imagine::NFmiImage> crop_corner(const Imagine::NFmiImage & theImage,
 										 int theX1,
 										 int theY1,
 										 int theWidth,
-										 int theHeight)
+										 int theHeight,
+										 int & theXoff,
+										 int & theYoff)
 {
   if(theWidth < 1 || theHeight < 1)
 	throw runtime_error("Image width and height must be positive");
@@ -501,6 +512,9 @@ auto_ptr<Imagine::NFmiImage> crop_corner(const Imagine::NFmiImage & theImage,
   x1 = x2-width;
   y1 = y2-height;
 
+  theXoff = x1;
+  theYoff = y1;
+
   auto_ptr<Imagine::NFmiImage> image(new Imagine::NFmiImage(width,height));
   for(int i=x1; i<x2;i++)
 	for(int j=y1; j<y2; j++)
@@ -518,8 +532,8 @@ auto_ptr<Imagine::NFmiImage> crop_corner(const Imagine::NFmiImage & theImage,
  * \param theYC The center Y-coordinate
  * \param theWidth The width
  * \param theHeight The height
- * \param theX The new X-coordinate of the center
- * \param theY The new Y-coordinate of the center
+ * \param theXoff The new X-origin
+ * \param theYoff The new Y-origin
  * \return auto_ptr to the cropped image
  */
 // ----------------------------------------------------------------------
@@ -529,8 +543,8 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
 										 int theYC,
 										 int theWidth,
 										 int theHeight,
-										 int & theX,
-										 int & theY)
+										 int & theXoff,
+										 int & theYoff)
 {
   if(theWidth < 1 || theHeight < 1)
 	throw runtime_error("Image width and height must be positive");
@@ -549,8 +563,8 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
   x1 = x2-width;
   y1 = y2-height;
 
-  theX = theXC - x1;
-  theY = theYC - y1;
+  theXoff = x1;
+  theYoff = y1;
 
   auto_ptr<Imagine::NFmiImage> image(new Imagine::NFmiImage(width,height));
   for(int i=x1; i<x2;i++)
@@ -814,6 +828,130 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw label(s) onto the image
+ *
+ * The option syntax is
+ * \code
+ * <spec>::<spec>::<spec>...
+ * \endcode
+ * where an individual spec is of form
+ * \code
+ * text,lon,lat,dx,dy,alignment,xmargin,ymargin,font,color,backgroundcolor
+ * \endcode
+ *
+ * \param theImage The image to draw into
+ * \param theArea The projection
+ * \param theXoff The pixel x-offset from cropping
+ * \param theYoff The pixel y-offset from cropping
+ * \param theOptions The command line option string
+ */
+// ----------------------------------------------------------------------
+
+void draw_labels(Imagine::NFmiImage & theImage,
+				 const NFmiArea & theArea,
+				 int theXoff,
+				 int theYoff,
+				 const string & theOptions)
+{
+  vector<string> options = NFmiStringTools::Split(theOptions,"::");
+  for(vector<string>::const_iterator it = options.begin();
+	  it != options.end();
+	  ++it)
+	{
+	  // defaults
+
+	  int dx = 0;
+	  int dy = 0;
+	  string alignment = "Center";
+	  int xmargin = 1;
+	  int ymargin = 1;
+	  string font = "misc/6x13.pcf.gz:6x13";
+	  string color = "black";
+	  string backgroundcolor = "transparent";
+
+	  // parse the options
+
+	  vector<string> words = NFmiStringTools::Split(*it);
+
+	  // compulsory parts: text,lon,lat
+
+	  if(words.size() < 3)
+		throw runtime_error("Too short option string '"+theOptions+"' for option -L");
+
+	  const string text = words[0];
+	  const double lon = NFmiStringTools::Convert<double>(words[1]);
+	  const double lat = NFmiStringTools::Convert<double>(words[2]);
+
+	  vector<string>::size_type i = 2;
+
+	  if(words.size() > i+1 && !words[++i].empty()) dx = NFmiStringTools::Convert<int>(words[i]);
+	  if(words.size() > i+1 && !words[++i].empty()) dy = NFmiStringTools::Convert<int>(words[i]);
+	  if(words.size() > i+1 && !words[++i].empty()) alignment = words[i];
+	  if(words.size() > i+1 && !words[++i].empty()) xmargin = ymargin = NFmiStringTools::Convert<int>(words[i]);
+	  if(words.size() > i+1 && !words[++i].empty()) ymargin = NFmiStringTools::Convert<int>(words[i]);
+	  if(words.size() > i+1 && !words[++i].empty()) font = words[i];
+	  if(words.size() > i+1 && !words[++i].empty()) color = words[i];
+	  if(words.size() > i+1 && !words[++i].empty()) backgroundcolor = words[i];
+
+	  // Extra parts
+
+	  if(words.size() > i+1)
+		throw runtime_error("Too many -L parts in option '"+*it+"'");
+
+	  // Parse the font option
+
+	  vector<string> fontparts = NFmiStringTools::Split(font,":");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font specification for option -L : '"+font+"'");
+	  font = fontparts[0];
+	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
+	  if(fontparts.size() != 2)
+		throw runtime_error("Invalid font size specification for option -L : '"+fontparts[1]+"'");
+	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
+	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+  
+	  // Parse the font color option
+	  
+	  Imagine::NFmiColorTools::Color fontcolor = parse_color(color);
+	  if(fontcolor == Imagine::NFmiColorTools::MissingColor)
+		throw runtime_error("Unknown font color '"+color+"'");
+
+	  // Parse the background color option
+	  
+	  Imagine::NFmiColorTools::Color backcolor = parse_color(backgroundcolor);
+	  if(backcolor == Imagine::NFmiColorTools::MissingColor)
+		throw runtime_error("Unknown font color '"+backgroundcolor+"'");
+	  
+	  // Parse the alignment option
+
+	  Imagine::NFmiAlignment align = Imagine::AlignmentValue(alignment);
+	  if(align == Imagine::kFmiAlignMissing)
+		throw runtime_error("Unknown alignment '"+alignment+"'");
+
+	  // Calculate the text coordinates
+
+	  NFmiPoint xy = theArea.ToXY(NFmiPoint(lon,lat));
+	  int xx = FmiRound(xy.X() + dx - theXoff);
+	  int yy = FmiRound(xy.Y() + dy - theYoff);
+
+	  cout << text << " at " << xx << ' ' << yy << endl;
+
+	  // Create the face and setup the background
+
+	  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+	  face.Background(true);
+	  face.BackgroundColor(backcolor);
+	  face.BackgroundMargin(xmargin,ymargin);
+
+	  // Draw
+  
+	  face.Draw(theImage,xx,yy,text,align,fontcolor);
+
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw a marker onto the projection center
  *
  * \param theImage The image to draw into
@@ -938,7 +1076,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!h");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -972,6 +1110,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("M",cmdline.OptionValue('M')));
 	  if(cmdline.isOption('I'))
 		options.insert(Options::value_type("I",cmdline.OptionValue('I')));
+	  if(cmdline.isOption('L'))
+		options.insert(Options::value_type("L",cmdline.OptionValue('L')));
 
 	}
 
@@ -988,6 +1128,7 @@ int domain(int argc, const char * argv[])
   const bool has_option_M = (options.find("M") != end);
   const bool has_option_I = (options.find("I") != end);
   const bool has_option_C = (options.find("C") != end);
+  const bool has_option_L = (options.find("L") != end);
 
   // -o does not modify the image
   const bool has_modifying_options
@@ -1037,37 +1178,58 @@ int domain(int argc, const char * argv[])
   bool has_center = false;
   int xm,ym;
 
+  // How much was removed from the image
+  int xoff = 0;
+  int yoff = 0;
+
+  // The established projection, if any
+
+  auto_ptr<NFmiArea> area;
+
   if(has_option_p)
 	{
 	  int xc,yc,width,height;
 	  has_center = true;
-	  parse_named_geometry(options.find("p")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(*cropped,xc,yc,width,height,xm,ym).release());
+	  area = parse_named_geometry(options.find("p")->second,xc,yc,width,height);
+	  cropped = crop_center(*cropped,xc,yc,width,height,xoff,yoff);
+	  xm = xc - xoff;
+	  ym = yc - yoff;
 	}
   else if(has_option_l)
 	{
 	  int xc,yc,width,height;
 	  has_center = true;
-	  parse_latlon_geometry(options.find("l")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(*cropped,xc,yc,width,height,xm,ym).release());
+	  area = parse_latlon_geometry(options.find("l")->second,xc,yc,width,height);
+	  cropped = crop_center(*cropped,xc,yc,width,height,xoff,yoff);
+	  xm = xc - xoff;
+	  ym = yc - yoff;
 	}
   else if(has_option_c)
 	{
 	  int xc,yc,width,height;
 	  has_center = true;
 	  parse_center_geometry(options.find("c")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(*cropped,xc,yc,width,height,xm,ym).release());
+	  cropped = crop_center(*cropped,xc,yc,width,height,xoff,yoff);
+	  xm = xc - xoff;
+	  ym = yc - yoff;
 	}
   else if(has_option_g)
 	{
 	  int x1,y1,width,height;
 	  parse_geometry(options.find("g")->second,x1,y1,width,height);
-	  cropped.reset(crop_corner(*cropped,x1,y1,width,height).release());
+	  cropped = crop_corner(*cropped,x1,y1,width,height,xoff,yoff);
 	}
 
   if(has_option_I)
 	{
 	  draw_image(*cropped,options.find("I")->second);
+	}
+
+  if(has_option_L)
+	{
+	  if(area.get() == 0)
+		throw runtime_error("Cannot draw labels onto image without a projection obtained from cropping");
+	  draw_labels(*cropped,*area,xoff,yoff,options.find("L")->second);
 	}
 
   if(has_option_T)

@@ -38,6 +38,8 @@ Komentorivioptiot ovat
 <dd>Tulosta ei talleteta cacheen, eik‰ sit‰ myˆsk‰‰n lueta sielt‰.</dd>
 <dt>-M [kuvatiedosto]</dt>
 <dd>Piirr‰ annettu kuva projektiokeskipisteen p‰‰lle</dd>
+<dt>-L [labelspeksi]</dt>
+<dd>Piirr‰ haluttu teksti kuvaan</dd>
 <dt>-T [aikaleimaspeksi]</dt>
 <dd>Piirr‰ aikaleima kuvaan</dd>
 <dt>-t [aikavyˆhyke]</dt>
@@ -131,7 +133,7 @@ optiolla -t.
 
 Optiolle annetaan argumentti, joka on muotoa
 \code
-x,y,format,type,xmargin,ymargin,font,color,backgroundcolor,
+x,y,format,type,xmargin,ymargin,font,color,backgroundcolor
 \endcode
 miss‰
 
@@ -181,6 +183,36 @@ Jos kuvan p‰‰lle halutaan liitt‰‰ monta kuvaa, liitet‰‰n argumentit saman
 \code
 image1,x1,y1,image2,x2,y2,...
 \endcode
+
+\section cropper_labelit Labelien piirto kuvaan
+
+Optiolla -L voi piirt‰‰ halutun tekstin haluttuun kuvapisteeseen.
+Optiolle annetaan argumentti, joka on muotoa
+\code
+text,lon,lat,dx,dy,alignment,xmargin,ymargin,font,color,backgroundcolor
+\endcode
+miss‰
+
+ - text on piirrett‰v‰ teksti
+ - lon,lat on halutun pisteen koordinaatti
+ - dx,dy on siirtym‰ pikselein‰ lon,lat pisteest‰ (default = 0,0)
+ - alignment on tekstin keskitys pisteeseen (default = Center)
+ - xmargin ja ymargin ovat background v‰rin ylim‰‰r‰inen leveys
+ - font on oletusarvoisesti "misc/6x13.pcf.gz:6x13"
+ - color on oletusarvoisesti "black"
+ - backgroundcolor on oletusarvoisesti "transparent"
+
+Ensimm‰iset kolme osaa ovat pakollisia. Optioita voi j‰tt‰‰ pois
+lopusta alkaen, ja kunkin ei-pakollisen option voi j‰tt‰‰ tyhj‰ksi.
+
+Useita labeleita voi piirt‰‰ samalla -L optiolla erottamalla speksit
+toisistaan merkkijonolla "::", esimerkiksi
+
+\code
+Helsinki,25,60::Turku,20,60
+\endcode
+
+Mahdolliset alignment arvot ovat Center, East, NortHEast, North jne.
 
 \section cropper_kartat Tietokantam‰‰rittelyt
 
