@@ -90,8 +90,8 @@ void http_output_image(const string & theFile)
   if(!in)
 	throw runtime_error("Image '"+theFile+"' was lost!");
 
-  // We expire everything in 1 hour
-  const long maxage = 3600;
+  // We expire everything in 24 hours
+  const long maxage = 24*3600;
   ::time_t expiration_time = time(0) + maxage;
   ::time_t last_modified = NFmiFileSystem::FileModificationTime(theFile);
 
