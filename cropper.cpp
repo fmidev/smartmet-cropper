@@ -1291,6 +1291,8 @@ int domain(int argc, const char * argv[])
   if(has_option_A && options.find("A")->second != "0")
 	cropped->SaveAlpha(true);
 
+  cropped->WantPalette();
+
   if(has_option_o)
 	cropped->Write(options.find("o")->second,imagetype);
   else
