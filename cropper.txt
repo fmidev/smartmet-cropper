@@ -92,7 +92,7 @@ missä (xc,yc) on haluttu keskipiste. Cropattavan alue on tällöin
 
 Optiolle \c -l annettavan \c [latlongeometria] argumentin syntaksi on
 \code
-<width>x<height>+<lon>+<lat>/<karttanimi>
+<width>x<height>+<lon>+<lat>:<karttanimi>
 \endcode
 Keskipisteen koordinaatti määräytyy suoraan annettujen longitudin,
 latitudin perusteella ja karttanimen perusteella. Tämän jälkeen
@@ -102,7 +102,7 @@ cropattava alue määräytyy kuten kappaleessa \ref cropper_keskipiste
 
 Optiolle \c -p annettavan \c [nimigeometria] argumentin syntaksi on
 \code
-<width>x<height>+<paikannimi>/<karttanimi>
+<width>x<height>+<paikannimi>:<karttanimi>
 \endcode
 Keskipisteen koordinaatti lasketaan tietokannasta haettavan paikannimen
 ja karttanimen perusteella. Tämän jälkeen cropattava alue määräytyy
