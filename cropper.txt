@@ -1,0 +1,116 @@
+// ======================================================================
+/*!
+
+\mainpage Cropper
+
+\section cropper_intro Johdanto
+
+Animaatioiden tekemisessä tarvitaan kuvien croppausta lennosta.  Tähän
+tarkoitukseen voisi käyttää ImageMagick paketin \c convert käskyä,
+mutta ImageMagick on todettu turhan epästabiiliksi. Näin ollen
+käytämme lokaalia varta vasten tähän tarkoitukseen tehtyä ohjelmaa.
+
+Lisähyötynä on mahdollisuus säätää tarkasti cropperin toimintaa,
+esim.
+
+  -# cachettaa tuloksia automaattisesti
+  -# cropata keskipisteen suhteen kulmapisteen sijaan
+  -# hyödyntää paikkatietokantaa
+
+\section cropper_optiot Komentorivioptiot
+
+<p>
+Komentorivioptiot ovat
+<dl>
+<dt>-f [kuvatiedosto]</dt>
+<dd>Kuvatiedoston nimi</dd>
+<dt>-g [kulmageometria]</dt>
+<dd>Cropattavan alueen koko ja kulmapiste.
+<dt>-c [keskigeometria]</dt>
+<dd>Cropattavan alueen koko ja keskipiste.
+<dt>-p [nimigeometria]</dt>
+<dd>Cropattavan alueen koko ja keskipisteen ja kartan nimi.
+<dt>-o [tiedostonimi]</dt>
+<dd>Optionaalinen tiedostonimi</dd>
+</dl>
+</p>
+
+<p>
+Jos yhtäkään optioiosta -g, -c tai -p ei ole annettu, palautetaan
+haluttu kuva sellaisenaan.
+</p>
+
+<p>
+Jos tiedostonimiargumenttia ei ole annettu, tulostetaan kuva aina
+suoraan terminaalille sopivien HTTP-headerien kera. Kuvat oletetaan
+staattisiksi (eli käytännössä nimissä lienee aikaleima kuvien
+erottelemiseksi). Näin ollen kuvien ilmoitetaan olevan aina voimassa,
+ne eivät koskaan muutu eivätkä ekspiroidu.
+</p>
+
+\section cropper_querystring \c QUERYSTRING optiot
+
+<p>
+Jos ympäristömuuttuja \c QUERYSTRING on asetettu, oletetaan
+ohjelmaa ajettavan cgi-binäärinä, ja optiot parseroidaan
+komentorivin sijaan \c QUERYSTRING muuttujasta.
+</p>
+<p>
+Koko QUERYSTRING oletetaan cryptatuksi php:n palcrypt käskyllä!
+</p>
+<p>
+\c QUERYSTRING muuttujasta tunnistetaan komentorivioptioita
+vastaavat muuttujat, eli f, g, c, p ja o. Ylimääräiset
+muuttujat jätetään huomioimatta ilman virheilmoitusta.
+</p>
+
+\section cropper_kulmat Croppaus kulmapisteiden suhteen
+
+Optiolle \c -g annettavan \c [kulmageometria] argumentin syntaksi on
+\code
+<width>x<height>+<x1>+<y1>
+\endcode
+Cropattava alue on tällöin
+
+  - Vasen yläkulma: (x1,y1)
+  - Oikea alakulma: (x2,y2) = (x1,y1) + (width,height)
+
+\section cropper_keskipiste Croppaus keskipisteen suhteen
+
+Optiolle \c -c annettavan \c [keskigeometria] argumentin syntaksi on
+\code
+<width>x<height>+<xc>+<yc>
+\endcode
+missä (xc,yc) on haluttu keskipiste. Cropattavan alue on tällöin
+
+  - Vasen yläkulma (x1,y1) = (xc-width/2,yc-width/2)
+  - Oikea alakulma (x2,y2) = (x1,y1) + (width,height)
+
+\section cropper_nimetty Croppaus nimetyn pisteen suhteen
+
+Optiolle \c -p annettavan \c [nimigeometria] argumentin syntaksi on
+\code
+<width>x<height>+<paikannimi/karttanimi>
+\endcode
+Keskipisteen koordinaatti lasketaan tietokannasta haettavan paikannimen
+ja karttanimen perusteella. Tämän jälkeen cropattava alue määräytyy
+kuten kappaleessa \ref cropper_keskipiste
+
+\section cropper_kartat Tietokantamäärittelyt
+
+Tietokannassa on
+
+  -# taulukko, jossa on kuvaus paikannimiltä longitudiksi ja latitudiksi
+  -# taulukko, jossa on kuvaus kartannimeltä projektioksi NFmiAreaFactory
+     namespacen vaatimassa muodossa
+
+\section cropper_kuvaformaatit Kuvaformaatit
+
+Toistaiseksi tuetaan vain PNG-kuvaformaattia.
+
+\section cropper_cache Cache
+
+Toistaiseksi cachea ei ole toteutettu. Cache toteutetaan vasta tarvittaessa.
+
+*/
+// ======================================================================
