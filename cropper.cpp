@@ -46,7 +46,7 @@ void usage()
 	   << "   -c [centergeometry]\t<width>x<height>+<xc>+<yc>" << endl
 	   << "   -l [latlongeometry]\t<width>x<height>+<lon>+<lat>:<mapname>" << endl
 	   << "   -p [namegeometry]\t<width>x<height>+<placename>:<mapname>" << endl
-	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<font>,<color>,<backgroundcolor>" << endl
+	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<backgroundcolor>" << endl
 	   << "   -I [imagespecs]\t<imagefile>,<x>,<y>,..." << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
