@@ -79,10 +79,10 @@ const string format_time(const ::time_t theTime)
 
 bool not_modified(const string & theFile)
 {
-  if(getenv("QUERYSTRING") != 0 &&
+  if(getenv("QUERY_STRING") != 0 &&
 	 getenv("HTTP_LAST_MODIFIED_SINCE") != 0)
 	{
-	  cout << "HTTP/1.0 304 Not Modified" << endl << endl;
+	  cout << "Status: 304 Not Modified" << endl;
 	  return true;
 	}
   else
@@ -106,8 +106,7 @@ void http_output_image(const string & theFile)
   ::time_t expiration_time = time(0) + maxage;
   ::time_t last_modified = NFmiFileSystem::FileModificationTime(theFile);
 
-  cout << "HTTP/1.1 200 OK" << endl
-	   << "Content-Type: image/png" << endl
+  cout << "Content-Type: image/png" << endl
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
 	   << "Cache-Control: max-age=" << maxage << endl
@@ -204,8 +203,7 @@ void http_output_image(const Imagine::NFmiImage & theImage,
   if(!in)
 	throw runtime_error("Was unable to create temporary file");
 
-  cout << "HTTP/1.1 200 OK" << endl
-	   << "Content-Type: image/png" << endl
+  cout << "Content-Type: image/png" << endl
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
 	   << "Cache-Control: max-age=" << maxage << endl
@@ -474,8 +472,10 @@ int domain(int argc, const char * argv[])
   typedef map<string,string> Options;
   Options options;
 
-  if(getenv("QUERYSTRING") != 0)
-	options = NFmiStringTools::ParseQueryString();
+  if(getenv("QUERY_STRING") != 0)
+	{
+	  options = NFmiStringTools::ParseQueryString();
+	}
   else
 	{
 	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!h");
@@ -515,6 +515,8 @@ int domain(int argc, const char * argv[])
   const bool has_option_p = (options.find("p") != end);
   const bool has_option_l = (options.find("l") != end);
   const bool has_option_o = (options.find("o") != end);
+
+  // throw runtime_error(shit.str());
 
   if(!has_option_f)
 	throw runtime_error("Must give image name to be cropped");
@@ -590,7 +592,7 @@ int domain(int argc, const char * argv[])
 
 int main(int argc, const char * argv[])
 {
-  const bool httpmode = (getenv("QUERYSTRING") != 0);
+  const bool httpmode = (getenv("QUERY_STRING") != 0);
 
   try
 	{
@@ -606,11 +608,7 @@ int main(int argc, const char * argv[])
 		}
 	  else
 		{
-		  cout << "HTTP/1.1 409 Conflict" << endl
-			   << "Content-Type: text/html" << endl
-			   << endl
-			   << e.what()
-			   << endl;
+		  cout << "Status: 409 " << e.what() << endl;
 		}
 	}
 
@@ -619,13 +617,7 @@ int main(int argc, const char * argv[])
 	  if(!httpmode)
 		cerr << "Error: Caught an unknown exception" << endl;
 	  else
-		{
-		  cout << "HTTP/1.1 409 Conflict" << endl
-			   << "Content-Type: text/html" << endl
-			   << endl
-			   << "Unknown exception occurred"
-			   << endl;
-		}
+		cout << "Status: 409 Unknown exception occurred" << endl;
 	}
   return 1;
 }
