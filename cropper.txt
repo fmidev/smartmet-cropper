@@ -36,6 +36,10 @@ Komentorivioptiot ovat
 <dd>Optionaalinen tiedostonimi</dd>
 <dt>-C</dt>
 <dd>Tulosta ei talleteta cacheen, eik‰ sit‰ myˆsk‰‰n lueta sielt‰.</dd>
+<dt>-M [kuvatiedosto]</dt>
+<dd>Piirr‰ annettu kuva keskipisteen p‰‰lle</dd>
+<dt>-T [aikaleimaspeksi]</dt>
+<dd>Piirr‰ aikaleima kuvaan</dd>
 </dl>
 </p>
 
@@ -109,6 +113,33 @@ Optiolle \c -p annettavan \c [nimigeometria] argumentin syntaksi on
 Keskipisteen koordinaatti lasketaan tietokannasta haettavan paikannimen
 ja karttanimen perusteella. T‰m‰n j‰lkeen cropattava alue m‰‰r‰ytyy
 kuten kappaleessa \ref cropper_keskipiste
+
+\section cropper_aikaleima Aikaleiman piirto kuvaan
+
+Optiolla \c -T saadaan piirretty‰ kuvaan aikaleima, joka
+perustuu itse tiedostonimeen. Tiedostonimess‰ oletetaan
+olevan yksi tai kaksi aikaleimaa muotoa YYYYMMDDHHMI, joista
+ensimm‰inen on aina havaintoaika, j‰lkimm‰inen ennustushetki.
+
+Optiolle annetaan argumentti, joka on muotoa
+\code
+x,y,format,type,font,color,backgroundcolor
+\endcode
+miss‰
+
+ - x on aikaleiman x-koordinaatti (negatiivinen on et‰isyys oikeasta reunasta)
+ - y on aikaleiman y-koordinaatti (negatiivinen on et‰isyys alareunasta)
+ - format on p‰iv‰m‰‰r‰n formaatti, oletusarvo on "%H:%M". Aikaleima
+   formatoidaan strftime k‰skyll‰.
+ - type on obs, for tai forobs, oletusarvo on "obs"
+ - font on oletusarvoisesti "misc/6x13.pcf.gz:6x13"
+ - color on oletusarvoisesti "black"
+ - backgroundcolor on oletusarvoisesti "#20B4B4B4"
+
+Esimerkiksi tunnit ja minuutit saa oikeaan alareunaan optioilla
+\code
+-T -5,-5
+\endcode
 
 \section cropper_kartat Tietokantam‰‰rittelyt
 

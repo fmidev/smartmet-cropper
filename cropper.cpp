@@ -10,6 +10,8 @@
 #include "NFmiArea.h"
 #include "NFmiAreaFactory.h"
 #include "NFmiCmdLine.h"
+#include "NFmiFace.h"
+#include "NFmiFreeType.h"
 #include "NFmiFileSystem.h"
 #include "NFmiLocationFinder.h"
 #include "NFmiStringTools.h"
@@ -44,6 +46,7 @@ void usage()
 	   << "   -c [centergeometry]\t<width>x<height>+<xc>+<yc>" << endl
 	   << "   -l [latlongeometry]\t<width>x<height>+<lon>+<lat>:<mapname>" << endl
 	   << "   -p [namegeometry]\t<width>x<height>+<placename>:<mapname>" << endl
+	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<font>,<color>,<backgroundcolor>" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
 	   << "   -C" << endl
@@ -518,6 +521,113 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw a timestamp onto the image
+ *
+ * \param theImage The image to draw into
+ * \param theOptions The options in string form
+ */
+// ----------------------------------------------------------------------
+
+void draw_timestamp(Imagine::NFmiImage & theImage,
+					const string & theOptions)
+{
+  // Initialize the defaults
+
+  string format = "%H:%N";
+  string type = "obs";
+  string font = "misc/6x13.pcf.gz:6x13";
+  string color = "black";
+  string backgroundcolor = "#20B4B4B4";
+
+  vector<string> parts = NFmiStringTools::Split(theOptions);
+
+  // Compulsory options
+
+  if(parts.size() < 2)
+	throw runtime_error("Too short option string '"+theOptions+"'");
+
+  int x = NFmiStringTools::Convert<int>(parts[0]);
+  int y = NFmiStringTools::Convert<int>(parts[1]);
+
+  // Optional parts
+
+  vector<string>::size_type i = 2;
+  if(parts.size() >= i && !parts[i].empty()) format = parts[i++];
+  if(parts.size() >= i && !parts[i].empty()) font = parts[i++];
+  if(parts.size() >= i && !parts[i].empty()) color = parts[i++];
+  if(parts.size() >= i && !parts[i].empty()) backgroundcolor = parts[i++];
+
+  // Extra parts
+
+  if(parts.size() >= i)
+	throw runtime_error("Too many -T parts in option '"+theOptions+"'");
+
+  // Parse the font option
+
+  vector<string> fontparts = NFmiStringTools::Split(font,":");
+  if(fontparts.size() != 2)
+	throw runtime_error("Invalid font specification for option -T : '"+font+"'");
+  font = fontparts[0];
+  fontparts = NFmiStringTools::Split(fontparts[1],"x");
+  if(fontparts.size() != 2)
+	throw runtime_error("Invalid font size specification for option -T : '"+fontparts[1]+"'");
+  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
+  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
+  
+  // Parse the font color option
+
+  Imagine::NFmiColorTools::Color fontcolor = Imagine::NFmiColorTools::ColorValue(color);
+  if(fontcolor == Imagine::NFmiColorTools::MissingColor)
+	throw runtime_error("Unknown font color '"+color+"'");
+
+  // Parse the background color option
+
+  Imagine::NFmiColorTools::Color backcolor = Imagine::NFmiColorTools::ColorValue(backgroundcolor);
+  if(backcolor == Imagine::NFmiColorTools::MissingColor)
+	throw runtime_error("Unknown font color '"+backgroundcolor+"'");
+
+  // Establish text coordinates and alignment
+
+  Imagine::NFmiAlignment align = Imagine::kFmiAlignNorthWest;
+  int xx = x;
+  int yy = y;
+  if(x > 0 && y > 0)
+	;
+  else if(x > 0 && y < 0)
+	{
+	  yy = theImage.Height() + y;
+	  align = Imagine::kFmiAlignSouthWest;
+	}
+  else if(x < 0 && y > 0)
+	{
+	  xx = theImage.Width() + x;
+	  align = Imagine::kFmiAlignNorthEast;
+	}
+  else
+	{
+	  xx = theImage.Width() + x;
+	  yy = theImage.Height() + y;
+	  align = Imagine::kFmiAlignSouthEast;
+	}
+  
+  // Create the text to be rendered
+
+  string text = "shit";
+
+  // Create the face and setup the background
+
+  Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
+  face.Background(true);
+  face.BackgroundColor(backcolor);
+
+  // Draw
+  
+  face.Draw(theImage,xx,yy,text,align,fontcolor);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief The main algorithm
  */
 // ----------------------------------------------------------------------
@@ -533,7 +643,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!h");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -559,6 +669,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("p",cmdline.OptionValue('p')));
 	  if(cmdline.isOption('o'))
 		options.insert(Options::value_type("o",cmdline.OptionValue('o')));
+	  if(cmdline.isOption('T'))
+		options.insert(Options::value_type("T",cmdline.OptionValue('T')));
 
 	}
 
@@ -570,6 +682,7 @@ int domain(int argc, const char * argv[])
   const bool has_option_p = (options.find("p") != end);
   const bool has_option_l = (options.find("l") != end);
   const bool has_option_o = (options.find("o") != end);
+  const bool has_option_T = (options.find("T") != end);
   const bool has_option_C = (options.find("C") != end);
 
   // throw runtime_error(shit.str());
@@ -637,6 +750,11 @@ int domain(int argc, const char * argv[])
 	  int x1,y1,width,height;
 	  parse_geometry(options.find("g")->second,x1,y1,width,height);
 	  cropped.reset(crop_corner(image,x1,y1,width,height).release());
+	}
+
+  if(has_option_T)
+	{
+	  draw_timestamp(*cropped,options.find("T")->second);
 	}
 
   if(has_option_o)
