@@ -68,8 +68,14 @@ const string format_time(const ::time_t theTime)
 
 bool not_modified(const string & theFile)
 {
-  return false;
-  // cout << "HTTP/1.0 304 Not Modified" << endl;
+  if(getenv("QUERYSTRING") != 0 &&
+	 getenv("HTTP_LAST_MODIFIED_SINCE") != 0)
+	{
+	  cout << "HTTP/1.0 304 Not Modified" << endl << endl;
+	  return true;
+	}
+  else
+	return false;
 }
 
 // ----------------------------------------------------------------------
