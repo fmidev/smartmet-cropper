@@ -45,6 +45,7 @@ void usage()
 	   << "   -p [namegeometry]\t<width>x<height>+<placename>/<mapname>" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
+	   << "   -C" << endl
 	   << endl;
 }
 
@@ -118,6 +119,52 @@ void http_output_image(const string & theFile)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Convert QUERY_STRING value to cache name
+ */
+// ----------------------------------------------------------------------
+
+const string cachename(const string theQueryString)
+{
+  string path = "/tmp/cropper";
+
+  if(!NFmiFileSystem::CreateDirectory(path))
+	throw runtime_error("Unable to create path /tmp/cropper for temporary files");
+
+  // Encode
+  string name1 = NFmiStringTools::UrlEncode(theQueryString);
+  // Remove %-characters as dangerous
+  string name2;
+  remove_copy(name1.begin(),name1.end(),back_inserter(name2),'%');
+
+  return (path+'/'+name2);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Output image from cache if possible
+ *
+ * \param theQueryString The value of the QUERY_STRING variable
+ * \return True, if a cached image was output
+ */
+// ----------------------------------------------------------------------
+
+bool http_output_cache(const char * theQueryString)
+{
+  if(theQueryString == 0)
+	return false;
+
+  const string filename = cachename(theQueryString);
+  if(!NFmiFileSystem::FileExists(filename))
+	return false;
+
+  http_output_image(filename);
+  return true;
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Establish the map projection for the given map name
  *
  * Throws if the map does not have a system description
@@ -185,7 +232,8 @@ const NFmiPoint find_location(const string theName)
 // ----------------------------------------------------------------------
 
 void http_output_image(const Imagine::NFmiImage & theImage,
-					   const string & theFile)
+					   const string & theFile,
+					   bool theCacheFlag)
 {
   // We expire everything in 24 hours
   const long maxage = 24*3600;
@@ -193,9 +241,14 @@ void http_output_image(const Imagine::NFmiImage & theImage,
   ::time_t last_modified = NFmiFileSystem::FileModificationTime(theFile);
 
   // This name is unique since the process number is unique
-  const string tmpfile = ("/tmp/cropper_"
-						  + NFmiStringTools::Convert(::getpid())
-						  + ".png");
+
+  string tmpfile;
+  if(theCacheFlag)
+	tmpfile = ("/tmp/cropper/"
+			   + NFmiStringTools::Convert(::getpid())
+			   + ".png");
+  else
+	tmpfile = cachename(getenv("QUERY_STRING"));
 
   theImage.WritePng(tmpfile);
 
@@ -212,7 +265,8 @@ void http_output_image(const Imagine::NFmiImage & theImage,
 	   << in.rdbuf();
   in.close();
 
-  NFmiFileSystem::RemoveFile(tmpfile);
+  if(theCacheFlag)
+	NFmiFileSystem::RemoveFile(tmpfile);
 
 }
 
@@ -515,6 +569,7 @@ int domain(int argc, const char * argv[])
   const bool has_option_p = (options.find("p") != end);
   const bool has_option_l = (options.find("l") != end);
   const bool has_option_o = (options.find("o") != end);
+  const bool has_option_C = (options.find("C") != end);
 
   // throw runtime_error(shit.str());
 
@@ -544,6 +599,14 @@ int domain(int argc, const char * argv[])
 	  else
 		http_output_image(imagefile);
 	  return 0;
+	}
+
+  // Use cache if possible
+
+  if(!has_option_C && !has_option_o)
+	{
+	  if(http_output_cache(getenv("QUERY_STRING")))
+		return 0;
 	}
 
   Imagine::NFmiImage image(imagefile);
@@ -578,7 +641,7 @@ int domain(int argc, const char * argv[])
   if(has_option_o)
 	cropped->WritePng(options.find("o")->second);
   else
-	http_output_image(*cropped,imagefile);
+	http_output_image(*cropped,imagefile,has_option_C);
 
   return 0;
 

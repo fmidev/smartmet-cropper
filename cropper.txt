@@ -34,6 +34,8 @@ Komentorivioptiot ovat
 <dd>Cropattavan alueen koko, keskipisteen koordinaatit ja kartan nimi.
 <dt>-o [tiedostonimi]</dt>
 <dd>Optionaalinen tiedostonimi</dd>
+<dt>-C</dt>
+<dd>Tulosta ei talleteta cacheen, eik‰ sit‰ myˆsk‰‰n lueta sielt‰.</dd>
 </dl>
 </p>
 
@@ -62,7 +64,7 @@ Koko \c QUERYSTRING oletetaan cryptatuksi php:n palcrypt k‰skyll‰!
 </p>
 <p>
 \c QUERYSTRING muuttujasta tunnistetaan komentorivioptioita
-vastaavat muuttujat, eli f, g, c, p ja l, mutta ei optiota o.
+vastaavat muuttujat, eli C, f, g, c, p ja l, mutta ei optiota o.
 Ylim‰‰r‰iset muuttujat j‰tet‰‰n huomioimatta ilman virheilmoitusta.
 </p>
 
@@ -127,7 +129,11 @@ Toistaiseksi tuetaan vain PNG-kuvaformaattia.
 
 \section cropper_cache Cache
 
-Toistaiseksi cachea ei ole toteutettu. Cache toteutetaan vasta tarvittaessa.
+Cachea k‰ytet‰‰n vain, kun kuvat haetaan HTTP-protokollan kautta. T‰llˆin
+k‰ytet‰‰n cache-hakemistoa /tmp/cropper, jonka olemassaolon cropper itse
+varmistaa aina tarvittaessa. Kukin cropattu kuva cachetetaan nimell‰,
+joka muodostetaan \c QUERY_STRING muuttujasta korvaamalla ei-alfanumeerinen
+merkki heksadesimaalisella vastineellaan.
 
 */
 // ======================================================================
