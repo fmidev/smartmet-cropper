@@ -673,8 +673,8 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 
   string format = "%H:%M";
   string type = "obs";
-  int xmargin = 2;
-  int ymargin = 2;
+  int xmargin = 1;
+  int ymargin = 1;
   string font = "misc/6x13.pcf.gz:6x13";
   string color = "black";
   string backgroundcolor = "#20B4B4B4";
