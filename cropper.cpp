@@ -738,18 +738,18 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 	;
   else if(x >= 0 && y < 0)
 	{
-	  yy = theImage.Height() + y;
+	  yy = theImage.Height() + y + 1;
 	  align = Imagine::kFmiAlignSouthWest;
 	}
   else if(x < 0 && y >= 0)
 	{
-	  xx = theImage.Width() + x;
+	  xx = theImage.Width() + x + 1;
 	  align = Imagine::kFmiAlignNorthEast;
 	}
   else
 	{
-	  xx = theImage.Width() + x;
-	  yy = theImage.Height() + y;
+	  xx = theImage.Width() + x + 1;
+	  yy = theImage.Height() + y + 1;
 	  align = Imagine::kFmiAlignSouthEast;
 	}
   
@@ -850,18 +850,18 @@ void draw_image(Imagine::NFmiImage & theImage,
 		;
 	  else if(x >= 0 && y < 0)
 		{
-		  yy = theImage.Height() + y;
+		  yy = theImage.Height() + y + 1;
 		  align = Imagine::kFmiAlignSouthWest;
 		}
 	  else if(x < 0 && y >= 0)
 		{
-		  xx = theImage.Width() + x;
+		  xx = theImage.Width() + x + 1;
 		  align = Imagine::kFmiAlignNorthEast;
 		}
 	  else
 		{
-		  xx = theImage.Width() + x;
-		  yy = theImage.Height() + y;
+		  xx = theImage.Width() + x + 1;
+		  yy = theImage.Height() + y + 1;
 		  align = Imagine::kFmiAlignSouthEast;
 		}
 	  
