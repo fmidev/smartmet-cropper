@@ -48,12 +48,12 @@ void usage()
 	   << "   -c [centergeometry]\t<width>x<height>+<xc>+<yc>" << endl
 	   << "   -l [latlongeometry]\t<width>x<height>+<lon>+<lat>:<mapname>" << endl
 	   << "   -p [namegeometry]\t<width>x<height>+<placename>:<mapname>" << endl
-	   << "   -M [image]\t<filename> or square or square:color" << endl
+	   << "   -M [image]\t\t<filename> or square or square:color" << endl
 	   << "   -L [labelspecs]\t<text>,<lon>,<lat>,<dx>,<dy>,<align>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -I [imagespecs]\t<imagefile>,<x>,<y>,..." << endl
-	   << "   -Z [RGBA]\tReduce color accuracy, default = 5550" << endl
-	   << "   -A\t\tKeep alpha channel" << endl
+	   << "   -Z [RGBA]\t\tReduce color accuracy, default = 5550" << endl
+	   << "   -A\t\t\tKeep alpha channel" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
 	   << "   -C" << endl
@@ -113,7 +113,9 @@ void http_output_image(const string & theFile)
   ::time_t expiration_time = time(0) + maxage;
   ::time_t last_modified = NFmiFileSystem::FileModificationTime(theFile);
 
-  cout << "Content-Type: image/png" << endl
+  string mime = Imagine::NFmiImageTools::MimeType(theFile);
+
+  cout << "Content-Type: image/" << mime << endl
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
 	   << "Cache-Control: max-age=" << maxage << endl
@@ -277,6 +279,7 @@ const NFmiPoint find_location(const string theName)
 
 void http_output_image(const Imagine::NFmiImage & theImage,
 					   const string & theFile,
+					   const string & theType,
 					   bool theCacheFlag)
 {
   // We expire everything in 24 hours
@@ -290,17 +293,17 @@ void http_output_image(const Imagine::NFmiImage & theImage,
   if(theCacheFlag)
 	tmpfile = ("/tmp/cropper/"
 			   + NFmiStringTools::Convert(::getpid())
-			   + ".png");
+			   + "." + theType);
   else
 	tmpfile = cachename(getenv("QUERY_STRING"));
 
-  theImage.WritePng(tmpfile);
+  theImage.Write(tmpfile,theType);
 
   ifstream in(tmpfile.c_str(), ios::in|ios::binary);
   if(!in)
 	throw runtime_error("Was unable to create temporary file");
 
-  cout << "Content-Type: image/png" << endl
+  cout << "Content-Type: image/" << theType << endl
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
 	   << "Cache-Control: max-age=" << maxage << endl
@@ -1205,6 +1208,7 @@ int domain(int argc, const char * argv[])
 	}
 
   auto_ptr<Imagine::NFmiImage> cropped(new Imagine::NFmiImage(imagefile));
+  const string imagetype = cropped->Type();
 
   bool has_center = false;
   int xm,ym;
@@ -1282,9 +1286,9 @@ int domain(int argc, const char * argv[])
 	cropped->SaveAlpha(true);
 
   if(has_option_o)
-	cropped->WritePng(options.find("o")->second);
+	cropped->Write(options.find("o")->second,imagetype);
   else
-	http_output_image(*cropped,imagefile,has_option_C);
+	http_output_image(*cropped,imagefile,imagetype,has_option_C);
 
   return 0;
 
