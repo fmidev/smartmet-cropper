@@ -7,6 +7,8 @@
 
 #include "NFmiImage.h"
 
+#include "NFmiArea.h"
+#include "NFmiAreaFactory.h"
 #include "NFmiCmdLine.h"
 #include "NFmiFileSystem.h"
 #include "NFmiStringTools.h"
@@ -116,6 +118,41 @@ void http_output_image(const string & theFile)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Establish the map projection for the given map name
+ *
+ * Throws if the map does not have a system description
+ *
+ * \param theMap The map name
+ * \return The created NFmiArea object
+ */
+// ----------------------------------------------------------------------
+
+auto_ptr<NFmiArea> create_map(const string & theMap)
+{
+  const string areafile = "/data/share/maps/" + theMap + "/area.cnf";
+  if(!NFmiFileSystem::FileExists(areafile))
+	throw runtime_error("Map name '"+theMap+"' is not recognized");
+
+  ifstream in(areafile.c_str(),ios::in);
+  if(!in)
+	throw runtime_error("Failed to open system file '"+areafile+"' for reading");
+
+  // Seek the first "projection" token, the description follows
+  string token;
+  while(in >> token)
+	{
+	  if(token == "projection")
+		{
+		  in >> token;
+		  return NFmiAreaFactory::Create(token);
+		}
+	}
+  throw runtime_error("The file '"+areafile+"' does not contain a projection description with a projection command");
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Output the given imagefile
  */
 // ----------------------------------------------------------------------
@@ -217,6 +254,53 @@ void parse_center_geometry(const string & theGeometry,
 	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
 }
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Parse a latlon geometry string
+ *
+ * The string format is <width>x<height>+<lon>+<lat>/<mapname>
+ *
+ * Throws if parsing the string fails.
+ *
+ * \param theGeometry The geometry string
+ * \param xc Reference to variable in which to store xc
+ * \param yc Reference to variable in which to store yc
+ * \param width Reference to variable in which to store width
+ * \param height Reference to variable in which to store height
+ */
+// ----------------------------------------------------------------------
+
+void parse_latlon_geometry(const string & theGeometry,
+						   int & xc,
+						   int & yc,
+						   int & width,
+						   int & height)
+{
+  if(theGeometry.empty())
+	throw runtime_error("The geometry specification is empty!");
+
+  istringstream geom(theGeometry);
+  string mapname;
+  double lon,lat;
+  char ch1,ch2;
+  geom >> width >> ch1 >> height >> lon >> lat >> ch2 >> mapname;
+  if(geom.fail() || ch1 != 'x' || ch2 != '/')
+	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
+
+  if(lon<-180 || lon>180)
+	throw runtime_error("Longitude out of bounds in '"+theGeometry+"'");
+
+  if(lat<-90 || lat>90)
+	throw runtime_error("Latitude out of bounds in '"+theGeometry+"'");
+
+  auto_ptr<NFmiArea> area = create_map(mapname);
+  
+  const NFmiPoint center = area->ToXY(NFmiPoint(lon,lat));
+
+  xc = static_cast<int>(0.5+center.X());
+  yc = static_cast<int>(0.5+center.Y());
+
+}
 
 // ----------------------------------------------------------------------
 /*!
@@ -397,7 +481,9 @@ int domain(int argc, const char * argv[])
 	}
   if(has_option_l)
 	{
-	  throw runtime_error("Latlon coordinates not supported yet");
+	  int xc,yc,width,height;
+	  parse_latlon_geometry(options.find("l")->second,xc,yc,width,height);
+	  cropped.reset(crop_center(image,xc,yc,width,height).release());
 	}
   if(has_option_c)
 	{
