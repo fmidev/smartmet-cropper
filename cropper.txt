@@ -48,6 +48,8 @@ Komentorivioptiot ovat
 <dd>Liit‰ kuvan p‰‰lle toinen kuva, esim. legenda</dd>
 <dt>-A</dt>
 <dd>Tallenna myˆs kuvan alpha-kanava</dd>
+<dt>-Z [bits]</dt>
+<dd>Pakkaa RGBA komponentit annettuun bittitarkkuuteen. Oletusarvo on 5550.
 </dl>
 </p>
 
@@ -76,7 +78,7 @@ Koko \c QUERYSTRING oletetaan cryptatuksi php:n palcrypt k‰skyll‰!
 </p>
 <p>
 \c QUERYSTRING muuttujasta tunnistetaan komentorivioptioita
-vastaavat muuttujat, eli C, f, g, c, p, l, M, T, t ja A mutta ei optiota o.
+vastaavat muuttujat, eli C, f, g, c, p, l, M, T, t, A ja Z mutta ei optiota o.
 Ylim‰‰r‰iset muuttujat j‰tet‰‰n huomioimatta ilman virheilmoitusta.
 </p>
 

@@ -13,6 +13,7 @@
 #include "NFmiFileSystem.h"
 #include "NFmiFreeType.h"
 #include "NFmiImage.h"
+#include "NFmiImageTools.h"
 #include "NFmiLocationFinder.h"
 #include "NFmiPath.h"
 #include "NFmiStringTools.h"
@@ -1058,6 +1059,28 @@ void draw_image(Imagine::NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Reduce colors in the image
+ *
+ * \param theImage The image to operate on
+ * \param theSpec The reduction specs, for example "5550"
+ */
+// ----------------------------------------------------------------------
+
+void reduce_colors(Imagine::NFmiImage & theImage, const string & theSpecs)
+{
+  if(theSpecs.size() != 4)
+	throw runtime_error("Invalid color reduction specification '"+theSpecs+"'");
+  int r = theSpecs[0] - '0';
+  int g = theSpecs[1] - '0';
+  int b = theSpecs[2] - '0';
+  int a = theSpecs[3] - '0';
+
+  Imagine::NFmiImageTools::CompressBits(theImage,r,g,b,a);
+
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief The main algorithm
  */
 // ----------------------------------------------------------------------
@@ -1075,7 +1098,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!Ah");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!AZ:h");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -1113,7 +1136,11 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("L",cmdline.OptionValue('L')));
 	  if(cmdline.isOption('A'))
 		options.insert(Options::value_type("A","1"));
-
+	  if(cmdline.isOption('Z'))
+		if(cmdline.OptionValue('Z'))
+		  options.insert(Options::value_type("Z",cmdline.OptionValue('Z')));
+		else
+		  options.insert(Options::value_type("Z","5550"));
 	}
 
   const Options::const_iterator end = options.end();
@@ -1131,6 +1158,7 @@ int domain(int argc, const char * argv[])
   const bool has_option_C = (options.find("C") != end);
   const bool has_option_L = (options.find("L") != end);
   const bool has_option_A = (options.find("A") != end);
+  const bool has_option_Z = (options.find("Z") != end);
 
   // -o does not modify the image
   const bool has_modifying_options
@@ -1244,6 +1272,9 @@ int domain(int argc, const char * argv[])
 	{
 	  draw_center(*cropped,options.find("M")->second,xm,ym);
 	}
+
+  if(has_option_Z)
+	reduce_colors(*cropped,options.find("Z")->second);
 
   cropped->SaveAlpha(false);
   if(has_option_A && options.find("A")->second != "0")
