@@ -5,15 +5,15 @@
  */
 // ======================================================================
 
-#include "NFmiImage.h"
-
 #include "NFmiArea.h"
 #include "NFmiAreaFactory.h"
 #include "NFmiCmdLine.h"
 #include "NFmiFace.h"
-#include "NFmiFreeType.h"
 #include "NFmiFileSystem.h"
+#include "NFmiFreeType.h"
+#include "NFmiImage.h"
 #include "NFmiLocationFinder.h"
+#include "NFmiPath.h"
 #include "NFmiStringTools.h"
 
 #include <algorithm>
@@ -484,6 +484,8 @@ auto_ptr<Imagine::NFmiImage> crop_corner(const Imagine::NFmiImage & theImage,
  * \param theYC The center Y-coordinate
  * \param theWidth The width
  * \param theHeight The height
+ * \param theX The new X-coordinate of the center
+ * \param theY The new Y-coordinate of the center
  * \return auto_ptr to the cropped image
  */
 // ----------------------------------------------------------------------
@@ -492,7 +494,9 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
 										 int theXC,
 										 int theYC,
 										 int theWidth,
-										 int theHeight)
+										 int theHeight,
+										 int & theX,
+										 int & theY)
 {
   if(theWidth < 1 || theHeight < 1)
 	throw runtime_error("Image width and height must be positive");
@@ -510,6 +514,9 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
   // And then the possibly adjusted start points are
   x1 = x2-width;
   y1 = y2-height;
+
+  theX = theXC - x1;
+  theY = theYC - y1;
 
   auto_ptr<Imagine::NFmiImage> image(new Imagine::NFmiImage(width,height));
   for(int i=x1; i<x2;i++)
@@ -759,6 +766,52 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw a marker onto the projection center
+ *
+ * \param theImage The image to draw into
+ * \param theOptions The marker option string
+ * \param theX The X-coordinate
+ * \param theY The Y-coordinate
+ */
+// ----------------------------------------------------------------------
+
+void draw_center(Imagine::NFmiImage & theImage,
+				 const string & theOptions,
+				 int theX,
+				 int theY)
+{
+  if(theOptions.substr(0,6) == "square")
+	{
+	  const vector<string> parts = NFmiStringTools::Split(theOptions,":");
+	  const string colorname = (parts.size() < 2 ? "black" : parts[1]);
+	  Imagine::NFmiColorTools::Color color = parse_color(colorname);
+
+	  const int sz = 2;
+	  Imagine::NFmiPath path;
+	  path.MoveTo(theX-sz,theY-sz);
+	  path.LineTo(theX+sz,theY-sz);
+	  path.LineTo(theX+sz,theY+sz);
+	  path.LineTo(theX-sz,theY+sz);
+	  path.CloseLineTo();
+
+	  path.Fill(theImage,
+				color,
+				Imagine::NFmiColorTools::kFmiColorOnOpaque);
+	}
+  else
+	{
+	  Imagine::NFmiImage marker(theOptions);
+	  theImage.Composite(marker,
+						 Imagine::NFmiColorTools::kFmiColorOnOpaque,
+						 Imagine::kFmiAlignCenter,
+						 theX,
+						 theY,
+						 1.0);
+	}
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief The main algorithm
  */
 // ----------------------------------------------------------------------
@@ -774,7 +827,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!M!h");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -802,6 +855,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("o",cmdline.OptionValue('o')));
 	  if(cmdline.isOption('T'))
 		options.insert(Options::value_type("T",cmdline.OptionValue('T')));
+	  if(cmdline.isOption('M'))
+		options.insert(Options::value_type("M",cmdline.OptionValue('M')));
 
 	}
 
@@ -814,6 +869,7 @@ int domain(int argc, const char * argv[])
   const bool has_option_l = (options.find("l") != end);
   const bool has_option_o = (options.find("o") != end);
   const bool has_option_T = (options.find("T") != end);
+  const bool has_option_M = (options.find("M") != end);
   const bool has_option_C = (options.find("C") != end);
 
   // throw runtime_error(shit.str());
@@ -858,23 +914,29 @@ int domain(int argc, const char * argv[])
 
   auto_ptr<Imagine::NFmiImage> cropped;
 
+  bool has_center = false;
+  int xm,ym;
+
   if(has_option_p)
 	{
 	  int xc,yc,width,height;
+	  has_center = true;
 	  parse_named_geometry(options.find("p")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(image,xc,yc,width,height).release());
+	  cropped.reset(crop_center(image,xc,yc,width,height,xm,ym).release());
 	}
   if(has_option_l)
 	{
 	  int xc,yc,width,height;
+	  has_center = true;
 	  parse_latlon_geometry(options.find("l")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(image,xc,yc,width,height).release());
+	  cropped.reset(crop_center(image,xc,yc,width,height,xm,ym).release());
 	}
   if(has_option_c)
 	{
 	  int xc,yc,width,height;
+	  has_center = true;
 	  parse_center_geometry(options.find("c")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(image,xc,yc,width,height).release());
+	  cropped.reset(crop_center(image,xc,yc,width,height,xm,ym).release());
 	}
   if(has_option_g)
 	{
@@ -886,6 +948,11 @@ int domain(int argc, const char * argv[])
   if(has_option_T)
 	{
 	  draw_timestamp(*cropped,options.find("T")->second,imagefile);
+	}
+
+  if(has_option_M && has_center)
+	{
+	  draw_center(*cropped,options.find("M")->second,xm,ym);
 	}
 
   if(has_option_o)

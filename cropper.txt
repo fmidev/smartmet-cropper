@@ -37,7 +37,7 @@ Komentorivioptiot ovat
 <dt>-C</dt>
 <dd>Tulosta ei talleteta cacheen, eikä sitä myöskään lueta sieltä.</dd>
 <dt>-M [kuvatiedosto]</dt>
-<dd>Piirrä annettu kuva keskipisteen päälle</dd>
+<dd>Piirrä annettu kuva projektiokeskipisteen päälle</dd>
 <dt>-T [aikaleimaspeksi]</dt>
 <dd>Piirrä aikaleima kuvaan</dd>
 </dl>
@@ -140,6 +140,17 @@ Esimerkiksi tunnit ja minuutit saa oikeaan alareunaan optioilla
 \code
 -T -5,-5
 \endcode
+
+\section cropper_keskipiste Keskipisteen merkitseminen kuvaan
+
+Optiolla \c -M voi määritellä kuvan, joka piirretään
+projektiokeskipisteen päälle. Usein haluttu keskipiste ei ole oikeasti
+keskellä kuvaa johtuen ennustusalueen rajallisuudesta. Tällöin halutun
+pisteen sijoittaminen voi piirretystä kuvasta riippuen olla hankalaa
+ilman pisteeseen erikseen piirrettävää markkeria.
+
+Jos annettu nimi on "square", piirretään pisteesen pieni musta neliö.
+Vaihtoehtoisesti nimi voi olla muotoa "square:color".
 
 \section cropper_kartat Tietokantamäärittelyt
 
