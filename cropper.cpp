@@ -335,15 +335,15 @@ int domain(int argc, const char * argv[])
 		}
 
 	  if(cmdline.isOption('f'))
-		options.insert(make_pair("f",cmdline.OptionValue('f')));
+		options.insert(Options::value_type("f",cmdline.OptionValue('f')));
 	  if(cmdline.isOption('g'))
-		options.insert(make_pair("g",cmdline.OptionValue('g')));
+		options.insert(Options::value_type("g",cmdline.OptionValue('g')));
 	  if(cmdline.isOption('c'))
-		options.insert(make_pair("c",cmdline.OptionValue('c')));
+		options.insert(Options::value_type("c",cmdline.OptionValue('c')));
 	  if(cmdline.isOption('p'))
-		options.insert(make_pair("p",cmdline.OptionValue('p')));
+		options.insert(Options::value_type("p",cmdline.OptionValue('p')));
 	  if(cmdline.isOption('o'))
-		options.insert(make_pair("o",cmdline.OptionValue('o')));
+		options.insert(Options::value_type("o",cmdline.OptionValue('o')));
 
 	}
 
@@ -395,13 +395,13 @@ int domain(int argc, const char * argv[])
 	{
 	  int xc,yc,width,height;
 	  parse_center_geometry(options.find("c")->second,xc,yc,width,height);
-	  cropped = crop_center(image,xc,yc,width,height);
+	  cropped.reset(crop_center(image,xc,yc,width,height).release());
 	}
   if(has_option_g)
 	{
 	  int x1,y1,width,height;
 	  parse_geometry(options.find("g")->second,x1,y1,width,height);
-	  cropped = crop_corner(image,x1,y1,width,height);
+	  cropped.reset(crop_corner(image,x1,y1,width,height).release());
 	}
 
   if(has_option_o)
