@@ -30,13 +30,15 @@ Komentorivioptiot ovat
 <dd>Cropattavan alueen koko ja keskipiste.
 <dt>-p [nimigeometria]</dt>
 <dd>Cropattavan alueen koko ja keskipisteen ja kartan nimi.
+<dt>-l [latlongeometria]</dt>
+<dd>Cropattavan alueen koko, keskipisteen koordinaatit ja kartan nimi.
 <dt>-o [tiedostonimi]</dt>
 <dd>Optionaalinen tiedostonimi</dd>
 </dl>
 </p>
 
 <p>
-Jos yht‰k‰‰n optioiosta -g, -c tai -p ei ole annettu, palautetaan
+Jos yht‰k‰‰n optioiosta -g, -c, -p tai -l ei ole annettu, palautetaan
 haluttu kuva sellaisenaan.
 </p>
 
@@ -60,7 +62,7 @@ Koko \c QUERYSTRING oletetaan cryptatuksi php:n palcrypt k‰skyll‰!
 </p>
 <p>
 \c QUERYSTRING muuttujasta tunnistetaan komentorivioptioita
-vastaavat muuttujat, eli f, g, c ja p, mutta ei optiota o.
+vastaavat muuttujat, eli f, g, c, p ja l, mutta ei optiota o.
 Ylim‰‰r‰iset muuttujat j‰tet‰‰n huomioimatta ilman virheilmoitusta.
 </p>
 
@@ -86,6 +88,16 @@ miss‰ (xc,yc) on haluttu keskipiste. Cropattavan alue on t‰llˆin
   - Vasen yl‰kulma (x1,y1) = (xc-width/2,yc-width/2)
   - Oikea alakulma (x2,y2) = (x1,y1) + (width,height)
 
+\section cropper_nimetty Croppaus koordinaattitpisteen suhteen
+
+Optiolle \c -l annettavan \c [latlongeometria] argumentin syntaksi on
+\code
+<width>x<height>+<lon,lat/karttanimi>
+\endcode
+Keskipisteen koordinaatti m‰‰r‰ytyy suoraan annettujen longitudin,
+latitudin perusteella ja karttanimen perusteella. T‰m‰n j‰lkeen
+cropattava alue m‰‰r‰ytyy kuten kappaleessa \ref cropper_keskipiste
+
 \section cropper_nimetty Croppaus nimetyn pisteen suhteen
 
 Optiolle \c -p annettavan \c [nimigeometria] argumentin syntaksi on
@@ -98,11 +110,16 @@ kuten kappaleessa \ref cropper_keskipiste
 
 \section cropper_kartat Tietokantam‰‰rittelyt
 
-Tietokannassa on
-
-  -# taulukko, jossa on kuvaus paikannimilt‰ longitudiksi ja latitudiksi
-  -# taulukko, jossa on kuvaus kartannimelt‰ projektioksi NFmiAreaFactory
-     namespacen vaatimassa muodossa
+Tietokannat on toistaiseksi toteutettu tiedostopohjaisina.
+Paikkakuntien nimet on tallennettu tiedostoon
+\code
+/data/share/coordinates/kaikki.txt
+\endcode
+Jos kartan nimi on \c tyyli/alue haetaan kartan m‰‰rittelyt
+tiedostosta
+\code
+/data/share/maps/tyyli/alue/alue.cnf
+\endcode
 
 \section cropper_kuvaformaatit Kuvaformaatit
 
