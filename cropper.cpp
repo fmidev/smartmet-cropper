@@ -1176,9 +1176,6 @@ int domain(int argc, const char * argv[])
 	}
 
   auto_ptr<Imagine::NFmiImage> cropped(new Imagine::NFmiImage(imagefile));
-  cropped->SaveAlpha(false);
-  if(has_option_A && options.find("A")->second != "0")
-	cropped->SaveAlpha(true);
 
   bool has_center = false;
   int xm,ym;
@@ -1247,6 +1244,10 @@ int domain(int argc, const char * argv[])
 	{
 	  draw_center(*cropped,options.find("M")->second,xm,ym);
 	}
+
+  cropped->SaveAlpha(false);
+  if(has_option_A && options.find("A")->second != "0")
+	cropped->SaveAlpha(true);
 
   if(has_option_o)
 	cropped->WritePng(options.find("o")->second);
