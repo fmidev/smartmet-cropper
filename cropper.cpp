@@ -673,6 +673,8 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 
   string format = "%H:%M";
   string type = "obs";
+  int xmargin = 2;
+  int ymargin = 2;
   string font = "misc/6x13.pcf.gz:6x13";
   string color = "black";
   string backgroundcolor = "#20B4B4B4";
@@ -692,6 +694,8 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
   vector<string>::size_type i = 1;
   if(parts.size() > i+1 && !parts[++i].empty()) format = parts[i];
   if(parts.size() > i+1 && !parts[++i].empty()) type = parts[i];
+  if(parts.size() > i+1 && !parts[++i].empty()) xmargin = ymargin = NFmiStringTools::Convert<int>(parts[i]);
+  if(parts.size() > i+1 && !parts[++i].empty()) ymargin = NFmiStringTools::Convert<int>(parts[i]);
   if(parts.size() > i+1 && !parts[++i].empty()) font = parts[i];
   if(parts.size() > i+1 && !parts[++i].empty()) color = parts[i];
   if(parts.size() > i+1 && !parts[++i].empty()) backgroundcolor = parts[i];
@@ -758,6 +762,7 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
   Imagine::NFmiFace face = Imagine::NFmiFreeType::Instance().Face(font,width,height);
   face.Background(true);
   face.BackgroundColor(backcolor);
+  face.BackgroundMargin(xmargin,ymargin);
 
   // Draw
   

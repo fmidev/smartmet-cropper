@@ -125,7 +125,7 @@ ensimm‰inen on aina havaintoaika, j‰lkimm‰inen ennustushetki.
 
 Optiolle annetaan argumentti, joka on muotoa
 \code
-x,y,format,type,font,color,backgroundcolor
+x,y,format,type,xmargin,ymargin,font,color,backgroundcolor,
 \endcode
 miss‰
 
@@ -135,6 +135,7 @@ miss‰
    formatoidaan strftime k‰skyll‰.
  - type on obs, for tai forobs, oletusarvo on "obs"
  - font on oletusarvoisesti "misc/6x13.pcf.gz:6x13"
+ - xmargin ja ymargin ovat background v‰rin ylim‰‰r‰inen leveys
  - color on oletusarvoisesti "black"
  - backgroundcolor on oletusarvoisesti "#20B4B4B4"
 
