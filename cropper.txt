@@ -40,6 +40,8 @@ Komentorivioptiot ovat
 <dd>Piirrä annettu kuva projektiokeskipisteen päälle</dd>
 <dt>-T [aikaleimaspeksi]</dt>
 <dd>Piirrä aikaleima kuvaan</dd>
+<dt>-t [aikavyöhyke]</dt>
+<dd>Aseta aikavyöhyke. Oletusarvo on Europe/Helsinki</dd>
 <dt>-I [kuvaspeksi]</dt>
 <dd>Liitä kuvan päälle toinen kuva, esim. legenda</dd>
 </dl>
@@ -70,7 +72,7 @@ Koko \c QUERYSTRING oletetaan cryptatuksi php:n palcrypt käskyllä!
 </p>
 <p>
 \c QUERYSTRING muuttujasta tunnistetaan komentorivioptioita
-vastaavat muuttujat, eli C, f, g, c, p ja l, mutta ei optiota o.
+vastaavat muuttujat, eli C, f, g, c, p, l, M, T ja t mutta ei optiota o.
 Ylimääräiset muuttujat jätetään huomioimatta ilman virheilmoitusta.
 </p>
 
@@ -122,6 +124,10 @@ Optiolla \c -T saadaan piirrettyä kuvaan aikaleima, joka
 perustuu itse tiedostonimeen. Tiedostonimessä oletetaan
 olevan yksi tai kaksi aikaleimaa muotoa YYYYMMDDHHMI, joista
 ensimmäinen on aina havaintoaika, jälkimmäinen ennustushetki.
+
+Cropper olettaa, että aikaleima on UTC-ajassa, ja konvertoi sen
+aikavyöhykkeeseen Europe/Helsinki. Aikavyöhykettä voi vaihtaa
+optiolla -t.
 
 Optiolle annetaan argumentti, joka on muotoa
 \code
