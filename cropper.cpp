@@ -56,6 +56,22 @@ void usage()
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Set the given timezone
+ *
+ * \param theZone The time zone descriptor
+ */
+// ----------------------------------------------------------------------
+
+void set_timezone(const string & theZone)
+{
+  // must be static, see putenv specs!
+  static string tzvalue = "TZ="+theZone;
+  putenv(const_cast<char *>(tzvalue.c_str()));
+  tzset();
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Format a time for HTTP output
  *
  * The output is generated with strftime using format
@@ -601,21 +617,30 @@ const vector<string> extract_timestamps(const string & theString)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Parse a timestamp of form YYYYMMDDHHMI
+ * \brief Parse a timestamp of form YYYYMMDDHHMI into local time
  */
 // ----------------------------------------------------------------------
 
 const ::tm parse_stamp(const string & theStamp)
 {
-  ::tm ret;
-  ret.tm_sec = 0;
-  ret.tm_min  = NFmiStringTools::Convert<int>(theStamp.substr(10,2));
-  ret.tm_hour = NFmiStringTools::Convert<int>(theStamp.substr(8,2));
-  ret.tm_mday = NFmiStringTools::Convert<int>(theStamp.substr(6,2));
-  ret.tm_mon  = NFmiStringTools::Convert<int>(theStamp.substr(4,2)) - 1;
-  ret.tm_year = NFmiStringTools::Convert<int>(theStamp.substr(0,4)) - 1900;
-  ret.tm_yday = -1;
-  ret.tm_isdst = -1;
+  // As UTC time
+  ::tm utc;
+  utc.tm_sec = 0;
+  utc.tm_min  = NFmiStringTools::Convert<int>(theStamp.substr(10,2));
+  utc.tm_hour = NFmiStringTools::Convert<int>(theStamp.substr(8,2));
+  utc.tm_mday = NFmiStringTools::Convert<int>(theStamp.substr(6,2));
+  utc.tm_mon  = NFmiStringTools::Convert<int>(theStamp.substr(4,2)) - 1;
+  utc.tm_year = NFmiStringTools::Convert<int>(theStamp.substr(0,4)) - 1900;
+  utc.tm_wday = -1;
+  utc.tm_yday = -1;
+  utc.tm_isdst = -1;
+
+  ::time_t epochtime = ::timegm(&utc);	// Linux extension
+
+  struct ::tm * local = ::localtime(&epochtime);
+
+  // Return by value, localtime owns the above struct
+  struct ::tm ret = *local;
   return ret;
 }
 
@@ -905,13 +930,15 @@ int domain(int argc, const char * argv[])
   typedef map<string,string> Options;
   Options options;
 
+  const string default_timezone = "Europe/Helsinki";
+
   if(getenv("QUERY_STRING") != 0)
 	{
 	  options = NFmiStringTools::ParseQueryString();
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!M!I!h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!h");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -939,6 +966,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("o",cmdline.OptionValue('o')));
 	  if(cmdline.isOption('T'))
 		options.insert(Options::value_type("T",cmdline.OptionValue('T')));
+	  if(cmdline.isOption('t'))
+		options.insert(Options::value_type("t",cmdline.OptionValue('t')));
 	  if(cmdline.isOption('M'))
 		options.insert(Options::value_type("M",cmdline.OptionValue('M')));
 	  if(cmdline.isOption('I'))
@@ -955,9 +984,15 @@ int domain(int argc, const char * argv[])
   const bool has_option_l = (options.find("l") != end);
   const bool has_option_o = (options.find("o") != end);
   const bool has_option_T = (options.find("T") != end);
+  const bool has_option_t = (options.find("t") != end);
   const bool has_option_M = (options.find("M") != end);
   const bool has_option_I = (options.find("I") != end);
   const bool has_option_C = (options.find("C") != end);
+
+  // -o does not modify the image
+  const bool has_modifying_options
+	= (options.size() > 1 ||
+	   (options.size() == 1 && options.find("o")!=end));
 
   // throw runtime_error(shit.str());
 
@@ -980,7 +1015,7 @@ int domain(int argc, const char * argv[])
 
   // Quick special case
 
-  if(has_option_g + has_option_c + has_option_p + has_option_l == 0)
+  if(!has_modifying_options)
 	{
 	  if(has_option_o)
 		NFmiFileSystem::CopyFile(imagefile,options.find("o")->second);
@@ -997,9 +1032,7 @@ int domain(int argc, const char * argv[])
 		return 0;
 	}
 
-  Imagine::NFmiImage image(imagefile);
-
-  auto_ptr<Imagine::NFmiImage> cropped;
+  auto_ptr<Imagine::NFmiImage> cropped(new Imagine::NFmiImage(imagefile));
 
   bool has_center = false;
   int xm,ym;
@@ -1009,27 +1042,27 @@ int domain(int argc, const char * argv[])
 	  int xc,yc,width,height;
 	  has_center = true;
 	  parse_named_geometry(options.find("p")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(image,xc,yc,width,height,xm,ym).release());
+	  cropped.reset(crop_center(*cropped,xc,yc,width,height,xm,ym).release());
 	}
-  if(has_option_l)
+  else if(has_option_l)
 	{
 	  int xc,yc,width,height;
 	  has_center = true;
 	  parse_latlon_geometry(options.find("l")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(image,xc,yc,width,height,xm,ym).release());
+	  cropped.reset(crop_center(*cropped,xc,yc,width,height,xm,ym).release());
 	}
-  if(has_option_c)
+  else if(has_option_c)
 	{
 	  int xc,yc,width,height;
 	  has_center = true;
 	  parse_center_geometry(options.find("c")->second,xc,yc,width,height);
-	  cropped.reset(crop_center(image,xc,yc,width,height,xm,ym).release());
+	  cropped.reset(crop_center(*cropped,xc,yc,width,height,xm,ym).release());
 	}
-  if(has_option_g)
+  else if(has_option_g)
 	{
 	  int x1,y1,width,height;
 	  parse_geometry(options.find("g")->second,x1,y1,width,height);
-	  cropped.reset(crop_corner(image,x1,y1,width,height).release());
+	  cropped.reset(crop_corner(*cropped,x1,y1,width,height).release());
 	}
 
   if(has_option_I)
@@ -1039,6 +1072,7 @@ int domain(int argc, const char * argv[])
 
   if(has_option_T)
 	{
+	  set_timezone(!has_option_t ? default_timezone : options.find("t")->second);
 	  draw_timestamp(*cropped,options.find("T")->second,imagefile);
 	}
 
