@@ -521,6 +521,28 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Parse a color description
+ */
+// ----------------------------------------------------------------------
+
+Imagine::NFmiColorTools::Color parse_color(const string & theColor)
+{
+  if(theColor.empty())
+	return Imagine::NFmiColorTools::MissingColor;
+
+  // Handle hex format number AARRGGBB or RRGGBB
+  
+  const char ch1 = theColor[0];
+  if(ch1=='#')
+	return Imagine::NFmiColorTools::HexToColor(theColor.substr(1));
+
+  // Handle ascii format
+
+  return Imagine::NFmiColorTools::ColorValue(theColor);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw a timestamp onto the image
  *
  * \param theImage The image to draw into
@@ -552,14 +574,14 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
   // Optional parts
 
   vector<string>::size_type i = 2;
-  if(parts.size() >= i && !parts[i].empty()) format = parts[i++];
-  if(parts.size() >= i && !parts[i].empty()) font = parts[i++];
-  if(parts.size() >= i && !parts[i].empty()) color = parts[i++];
-  if(parts.size() >= i && !parts[i].empty()) backgroundcolor = parts[i++];
+  if(parts.size() > i && !parts[i].empty()) format = parts[i++];
+  if(parts.size() > i && !parts[i].empty()) font = parts[i++];
+  if(parts.size() > i && !parts[i].empty()) color = parts[i++];
+  if(parts.size() > i && !parts[i].empty()) backgroundcolor = parts[i++];
 
   // Extra parts
 
-  if(parts.size() >= i)
+  if(parts.size() > i)
 	throw runtime_error("Too many -T parts in option '"+theOptions+"'");
 
   // Parse the font option
@@ -576,13 +598,13 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
   
   // Parse the font color option
 
-  Imagine::NFmiColorTools::Color fontcolor = Imagine::NFmiColorTools::ColorValue(color);
+  Imagine::NFmiColorTools::Color fontcolor = parse_color(color);
   if(fontcolor == Imagine::NFmiColorTools::MissingColor)
 	throw runtime_error("Unknown font color '"+color+"'");
 
   // Parse the background color option
 
-  Imagine::NFmiColorTools::Color backcolor = Imagine::NFmiColorTools::ColorValue(backgroundcolor);
+  Imagine::NFmiColorTools::Color backcolor = parse_color(backgroundcolor);
   if(backcolor == Imagine::NFmiColorTools::MissingColor)
 	throw runtime_error("Unknown font color '"+backgroundcolor+"'");
 
