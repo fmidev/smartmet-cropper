@@ -48,7 +48,7 @@ erottelemiseksi). N‰in ollen kuvien ilmoitetaan olevan aina voimassa,
 ne eiv‰t koskaan muutu eiv‰tk‰ ekspiroidu.
 </p>
 
-\section cropper_querystring \c QUERYSTRING optiot
+\section cropper_querystring QUERYSTRING optiot
 
 <p>
 Jos ymp‰ristˆmuuttuja \c QUERYSTRING on asetettu, oletetaan
@@ -56,12 +56,12 @@ ohjelmaa ajettavan cgi-bin‰‰rin‰, ja optiot parseroidaan
 komentorivin sijaan \c QUERYSTRING muuttujasta.
 </p>
 <p>
-Koko QUERYSTRING oletetaan cryptatuksi php:n palcrypt k‰skyll‰!
+Koko \c QUERYSTRING oletetaan cryptatuksi php:n palcrypt k‰skyll‰!
 </p>
 <p>
 \c QUERYSTRING muuttujasta tunnistetaan komentorivioptioita
-vastaavat muuttujat, eli f, g, c, p ja o. Ylim‰‰r‰iset
-muuttujat j‰tet‰‰n huomioimatta ilman virheilmoitusta.
+vastaavat muuttujat, eli f, g, c ja p, mutta ei optiota o.
+Ylim‰‰r‰iset muuttujat j‰tet‰‰n huomioimatta ilman virheilmoitusta.
 </p>
 
 \section cropper_kulmat Croppaus kulmapisteiden suhteen
