@@ -76,27 +76,6 @@ const string format_time(const ::time_t theTime)
 
 // ----------------------------------------------------------------------
 /*!
- * \brief Output a "not modified" response if possible
- *
- * \param theFile The file whose modification time is requested
- * \return True, if a not-modified response was sent
- */
-// ----------------------------------------------------------------------
-
-bool not_modified(const string & theFile)
-{
-  if(getenv("QUERY_STRING") != 0 &&
-	 getenv("HTTP_LAST_MODIFIED_SINCE") != 0)
-	{
-	  cout << "Status: 304 Not Modified" << endl;
-	  return true;
-	}
-  else
-	return false;
-}
-
-// ----------------------------------------------------------------------
-/*!
  * \brief Output the given imagefile
  */
 // ----------------------------------------------------------------------
@@ -143,6 +122,44 @@ const string cachename(const string theQueryString)
 
   return (path+'/'+name2);
 
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Output a "not modified" response if possible
+ *
+ * \param theFile The file whose modification time is requested
+ * \return True, if a not-modified response was sent
+ */
+// ----------------------------------------------------------------------
+
+bool not_modified(const string & theFile)
+{
+  if(getenv("QUERY_STRING") == 0 ||
+	 getenv("HTTP_LAST_MODIFIED_SINCE") == 0)
+	return false;
+
+  // If cached file exists and is newer than the original
+  // file, respond "Not Modified"
+
+  const string tmpfile = cachename(getenv("QUERY_STRING"));
+
+  // Safety checks
+
+  if(!NFmiFileSystem::FileExists(tmpfile) ||
+	 !NFmiFileSystem::FileExists(theFile))
+	{
+	  cout << "Status: 304 Not Modified" << endl;
+	  return true;
+	}
+
+  // Age check
+  if(NFmiFileSystem::FileModificationTime(theFile) >=
+	 NFmiFileSystem::FileModificationTime(tmpfile))
+	return false;
+
+  cout << "Status: 304 Not Modified" << endl;
+  return true;
 }
 
 // ----------------------------------------------------------------------
