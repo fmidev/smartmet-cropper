@@ -1,5 +1,5 @@
 HTML = cropper
-PROG = cropper
+PROG = cropper cropper_auth
 
 MAINFLAGS = -Wall -W -Wno-unused-parameter
 
@@ -16,8 +16,8 @@ CFLAGS = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS)
 CFLAGS_RELEASE = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
 LDFLAGS = 
 ARFLAGS = -r
-INCLUDES = -I $(includedir) -I $(includedir)/newbase -I $(includedir)/imagine -I /usr/include/freetype2
-LIBS = -L$(libdir) -limagine -lnewbase -lfreetype -ljpeg -lpng -lz
+INCLUDES = -I $(includedir) -I $(includedir)/newbase -I $(includedir)/webauthenticator -I $(includedir)/imagine -I /usr/include/freetype2
+LIBS = -L$(libdir) -limagine -lnewbase -lwebauthenticator -lfreetype -ljpeg -lpng -lz
 
 # Common library compiling template
 
