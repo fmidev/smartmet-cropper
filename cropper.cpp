@@ -2,6 +2,10 @@
 /*!
  * \file
  * \brief Implementation of the \c cropper command
+ *
+ * \note  THIS FILE AND PROGRAM IS DEPRICATED -- YOU MUST
+ * \note  USE AUTHENTICATING VERSION cropper_auth IN NEW
+ * \note  PRODUCTS AND SERVICES
  */
 // ======================================================================
 
@@ -1304,7 +1308,7 @@ int domain(int argc, const char * argv[])
 
 // ----------------------------------------------------------------------
 /*!
- * \brief The main program
+ * \brief The main program. REMEMBER, THIS IS DEPRICATED VERSION OF CROPPER!
  */
 // ----------------------------------------------------------------------
 
