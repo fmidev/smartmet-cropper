@@ -1199,7 +1199,6 @@ int domain(int argc, const char * argv[])
 	throw runtime_error("The desired image '"+imagefile+"' does not exist");
 
   // Handle a possible HTTP_IF_MODIFIED_SINCE query
-
   if(not_modified(imagefile))
 	return 0;
 
@@ -1333,12 +1332,13 @@ int main(int argc, const char * argv[])
 		}
 
 
-	  // Authentication was accepted. We remove the authentication information
-	  // from the query string by replacing it with a canonized query string.
-	  //
-	  // This is a simple but effective fix, as the cropper uses
-	  // QUERY_STRING environmental value extensively.
 
+	  // Authentication was accepted. We remove the authentication information
+	  // from the query string by replacing the data on environmental variable
+	  // QUERY_STRING with a canonized query string.
+	  //
+	  // This is a simple but effective fix, as the cropper solely
+	  // relies on QUERY_STRING environmental variable.
 	  setenv("QUERY_STRING", Authorize.canonizeQuery(getenv("QUERY_STRING")).c_str(), true);
 	}
 
