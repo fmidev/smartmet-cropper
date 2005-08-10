@@ -164,7 +164,7 @@ const string cachename(const string theQueryString)
 bool not_modified(const string & theFile)
 {
   if(getenv("QUERY_STRING") == 0 ||
-	 getenv("HTTP_LAST_MODIFIED_SINCE") == 0)
+	 getenv("HTTP_IF_MODIFIED_SINCE") == 0)
 	return false;
 
   // If cached file exists and is newer than the original
