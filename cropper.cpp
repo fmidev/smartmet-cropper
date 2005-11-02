@@ -55,6 +55,7 @@ void usage()
 	   << "   -M [image]\t\t<filename> or square or square:color" << endl
 	   << "   -L [labelspecs]\t<text>,<lon>,<lat>,<dx>,<dy>,<align>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
+	   << "   -t [locale]" << endl
 	   << "   -I [imagespecs]\t<imagefile>,<x>,<y>,..." << endl
 	   << "   -Z [RGBA]\t\tReduce color accuracy, default = 5550" << endl
 	   << "   -A\t\t\tKeep alpha channel" << endl
