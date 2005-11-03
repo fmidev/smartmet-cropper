@@ -1222,7 +1222,8 @@ int domain(int argc, const char * argv[])
   const string imagetype = cropped->Type();
 
   bool has_center = false;
-  int xm,ym;
+  int xm = 0;
+  int ym = 0;
 
   // How much was removed from the image
   int xoff = 0;
