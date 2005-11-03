@@ -44,6 +44,8 @@ Komentorivioptiot ovat
 <dd>Piirrä aikaleima kuvaan</dd>
 <dt>-t [aikavyöhyke]</dt>
 <dd>Aseta aikavyöhyke. Oletusarvo on Europe/Helsinki</dd>
+<dt>-k [kieli]</dt>
+<dd>Aseta kieli. Oletus arvo on koneen asetus, yleensä en_US</dd>
 <dt>-I [kuvaspeksi]</dt>
 <dd>Liitä kuvan päälle toinen kuva, esim. legenda</dd>
 <dt>-A</dt>
@@ -133,7 +135,8 @@ ensimmäinen on aina havaintoaika, jälkimmäinen ennustushetki.
 
 Cropper olettaa, että aikaleima on UTC-ajassa, ja konvertoi sen
 aikavyöhykkeeseen Europe/Helsinki. Aikavyöhykettä voi vaihtaa
-optiolla -t.
+optiolla -t. Aikaleimassa käytettyä kieltä voi vaihtaa optiolla
+-k, esim. "-k fi_FI".
 
 Optiolle annetaan argumentti, joka on muotoa
 \code

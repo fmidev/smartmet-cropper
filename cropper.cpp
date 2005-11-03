@@ -23,6 +23,7 @@
 #include "NFmiStringTools.h"
 
 #include <algorithm>
+#include <clocale>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -55,7 +56,8 @@ void usage()
 	   << "   -M [image]\t\t<filename> or square or square:color" << endl
 	   << "   -L [labelspecs]\t<text>,<lon>,<lat>,<dx>,<dy>,<align>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
 	   << "   -T [stampspecs]\t<x>,<y>,<format>,<type>,<xmargin>,<ymargin>,<font>,<color>,<bgcolor>" << endl
-	   << "   -t [locale]" << endl
+	   << "   -t [locale]\t\tEurope/Helsinki, UTC etc" << endl
+	   << "   -k [lang]\t\tLanguage, for example fi_FI" << endl
 	   << "   -I [imagespecs]\t<imagefile>,<x>,<y>,..." << endl
 	   << "   -Z [RGBA]\t\tReduce color accuracy, default = 5550" << endl
 	   << "   -A\t\t\tKeep alpha channel" << endl
@@ -1113,7 +1115,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!AZ:h");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!AZ:hk!");
 
 	  if(cmdline.Status().IsError())
 		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
@@ -1151,6 +1153,8 @@ int domain(int argc, const char * argv[])
 		options.insert(Options::value_type("L",cmdline.OptionValue('L')));
 	  if(cmdline.isOption('A'))
 		options.insert(Options::value_type("A","1"));
+	  if(cmdline.isOption('k'))
+		options.insert(Options::value_type("k",cmdline.OptionValue('k')));
 	  if(cmdline.isOption('Z'))
 		if(cmdline.OptionValue('Z'))
 		  options.insert(Options::value_type("Z",cmdline.OptionValue('Z')));
@@ -1174,13 +1178,12 @@ int domain(int argc, const char * argv[])
   const bool has_option_L = (options.find("L") != end);
   const bool has_option_A = (options.find("A") != end);
   const bool has_option_Z = (options.find("Z") != end);
+  const bool has_option_k = (options.find("k") != end);
 
   // -o does not modify the image
   const bool has_modifying_options
 	= (options.size() > 1 ||
 	   (options.size() == 1 && options.find("o")!=end));
-
-  // throw runtime_error(shit.str());
 
   if(!has_option_f)
 	throw runtime_error("Must give image name to be cropped");
@@ -1217,6 +1220,11 @@ int domain(int argc, const char * argv[])
 	  if(http_output_cache(getenv("QUERY_STRING")))
 		return 0;
 	}
+
+  // Set timestring language
+
+  if(has_option_k)
+	setlocale(LC_TIME,options.find("k")->second.c_str());
 
   auto_ptr<Imagine::NFmiImage> cropped(new Imagine::NFmiImage(imagefile));
   const string imagetype = cropped->Type();
