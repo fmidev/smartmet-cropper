@@ -1103,6 +1103,21 @@ void reduce_colors(Imagine::NFmiImage & theImage, const string & theSpecs)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Extract suffix of filename
+ */
+// ----------------------------------------------------------------------
+
+const string get_suffix(const string & theFilename)
+{
+  unsigned int pos = theFilename.rfind(".");
+  if(pos==string::npos || pos==theFilename.size()-1)
+        return "";
+  else
+        return theFilename.substr(pos+1);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief The main algorithm
  */
 // ----------------------------------------------------------------------
@@ -1312,7 +1327,11 @@ int domain(int argc, const char * argv[])
   cropped->WantPalette(true);
 
   if(has_option_o)
-	cropped->Write(options.find("o")->second,imagetype);
+	{
+	  string & filename = options.find("o")->second;
+	  string suffix = get_suffix(filename);
+	  cropped->Write(filename,suffix);
+	}
   else
 	http_output_image(*cropped,imagefile,imagetype,has_option_C);
 

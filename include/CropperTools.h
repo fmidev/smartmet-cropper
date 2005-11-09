@@ -26,6 +26,7 @@ bool not_modified(const std::string & theFile);
 bool http_output_cache(const char * theQueryString);
 std::auto_ptr<NFmiArea> create_map(const std::string & theMap);
 const NFmiPoint find_location(const std::string & theName);
+const std::string get_suffix(const std::string & theFilename);
 void http_output_image(const Imagine::NFmiImage & theImage,
 					   const std::string & theFile,
 					   const std::string & theType,
