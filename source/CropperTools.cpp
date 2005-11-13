@@ -1294,11 +1294,6 @@ int domain(int argc, const char * argv[])
 	  cropped = crop_corner(*cropped,x1,y1,width,height,xoff,yoff);
 	}
 
-  if(has_option_I)
-	{
-	  draw_image(*cropped,options.find("I")->second);
-	}
-
   if(has_option_L)
 	{
 	  if(area.get() == 0)
@@ -1310,6 +1305,11 @@ int domain(int argc, const char * argv[])
 	{
 	  set_timezone(!has_option_t ? default_timezone : options.find("t")->second);
 	  draw_timestamp(*cropped,options.find("T")->second,imagefile);
+	}
+
+  if(has_option_I)
+	{
+	  draw_image(*cropped,options.find("I")->second);
 	}
 
   if(has_option_M && has_center)
