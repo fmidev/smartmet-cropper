@@ -108,8 +108,6 @@ NFmiPoint checkmeridian(const NFmiPoint & theLatLon,
   if(meridian == 0)
 	return theLatLon;
 
-  cout << "Adjusting " << theLatLon << " with meridian " << meridian << endl;
-
   if(std::abs(theLatLon.X()-meridian) < 180)
 	return theLatLon;
 
