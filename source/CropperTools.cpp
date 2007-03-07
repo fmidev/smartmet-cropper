@@ -136,17 +136,17 @@ void set_timezone(const string & theZone)
  * \brief Format a time for HTTP output
  *
  * The output is generated with strftime using format
- * "%a,  %d  %b  %Y  %H:%M:%S  %z" as adviced in the
+ * "%a,  %d  %b  %Y  %H:%M:%S" as adviced in the
  * man-pages for strftime.
  */
 // ----------------------------------------------------------------------
 
 const string format_time(const ::time_t theTime)
 {
-  const struct ::tm * t = localtime(&theTime);
+  const struct ::tm * t = gmtime(&theTime);
   const ::size_t MAXLEN = 100;
   char buffer[MAXLEN];
-  ::size_t n = strftime(buffer,MAXLEN,"%a, %d %b %Y %H:%M:%S %z",t);
+  ::size_t n = strftime(buffer,MAXLEN,"%a, %d %b %Y %H:%M:%S GMT",t);
   string ret(buffer,0,n);
   return ret;
 }
@@ -173,7 +173,7 @@ void http_output_image(const string & theFile)
   cout << "Content-Type: image/" << mime << endl
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
-	   << "Cache-Control: max-age=" << maxage << endl
+	   << "Cache-Control: max-age=" << maxage << ", public" << endl
 	   << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << endl
 	   << endl
 	   << in.rdbuf();
@@ -367,7 +367,7 @@ void http_output_image(const Imagine::NFmiImage & theImage,
   cout << "Content-Type: image/" << theType << endl
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
-	   << "Cache-Control: max-age=" << maxage << endl
+	   << "Cache-Control: max-age=" << maxage << ", public" << endl
 	   << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << endl
 	   << endl
 	   << in.rdbuf();
