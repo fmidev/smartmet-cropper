@@ -74,6 +74,49 @@ void usage(const string & theProgName)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Test whether the area implies a shifted meridian
+ */
+// ----------------------------------------------------------------------
+
+bool centralmeridian(const NFmiArea & theArea)
+{
+  // the area longitudes
+  
+  double x1 = theArea.BottomLeftLatLon().X();
+  double x2 = theArea.TopRightLatLon().X();
+  
+  // make sure the corners are in incremental order
+  if(x2 < x1) x2+=360;
+  
+  if(x1 < -180 && x2 >= -180)
+	return -180;
+  if(x1 <= 180 && x2 > 180)
+	return 180;
+  return 0;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Adjust latlon to different meridian systems if necessary
+ */
+// ----------------------------------------------------------------------
+
+NFmiPoint checkmeridian(const NFmiPoint & theLatLon,
+						const NFmiArea & theArea)
+{
+  const float meridian = centralmeridian(theArea);
+  if(meridian == 0)
+	return theLatLon;
+
+  if(std::abs(theLatLon.X()-meridian) < 180)
+	return theLatLon;
+
+  const float shift = (meridian < 0 ? -360 : 360);
+  return NFmiPoint(theLatLon.X()+shift,theLatLon.Y());
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Set the given timezone
  *
  * \param theZone The time zone descriptor
@@ -440,8 +483,9 @@ auto_ptr<NFmiArea> parse_latlon_geometry(const string & theGeometry,
 	throw runtime_error("Latitude out of bounds in '"+theGeometry+"'");
 
   auto_ptr<NFmiArea> area = create_map(mapname);
-  
-  const NFmiPoint center = area->ToXY(NFmiPoint(lon,lat));
+
+  NFmiPoint center = checkmeridian(NFmiPoint(lon,lat),*area);
+  center = area->ToXY(center);
 
   xc = static_cast<int>(0.5+center.X());
   yc = static_cast<int>(0.5+center.Y());
@@ -487,7 +531,8 @@ auto_ptr<NFmiArea> parse_named_geometry(const string & theGeometry,
 
   auto_ptr<NFmiArea> area = create_map(mapname);
   
-  const NFmiPoint center = area->ToXY(city);
+  NFmiPoint center = checkmeridian(city,*area);
+  center = area->ToXY(center);
 
   xc = static_cast<int>(0.5+center.X());
   yc = static_cast<int>(0.5+center.Y());
@@ -954,7 +999,8 @@ void draw_labels(Imagine::NFmiImage & theImage,
 
 	  // Calculate the text coordinates
 
-	  NFmiPoint xy = theArea.ToXY(NFmiPoint(lon,lat));
+	  NFmiPoint xy = checkmeridian(NFmiPoint(lon,lat),theArea);
+	  xy = theArea.ToXY(xy);
 	  int xx = FmiRound(xy.X() + dx - theXoff);
 	  int yy = FmiRound(xy.Y() + dy - theYoff);
 
