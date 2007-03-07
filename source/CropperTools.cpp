@@ -78,7 +78,7 @@ void usage(const string & theProgName)
  */
 // ----------------------------------------------------------------------
 
-bool centralmeridian(const NFmiArea & theArea)
+float centralmeridian(const NFmiArea & theArea)
 {
   // the area longitudes
   
@@ -107,6 +107,8 @@ NFmiPoint checkmeridian(const NFmiPoint & theLatLon,
   const float meridian = centralmeridian(theArea);
   if(meridian == 0)
 	return theLatLon;
+
+  cout << "Adjusting " << theLatLon << " with meridian " << meridian << endl;
 
   if(std::abs(theLatLon.X()-meridian) < 180)
 	return theLatLon;
