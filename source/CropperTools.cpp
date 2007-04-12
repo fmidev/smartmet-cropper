@@ -335,6 +335,9 @@ const NFmiPoint find_location(const string & theName)
 // ----------------------------------------------------------------------
 /*!
  * \brief Output the given imagefile
+ *
+ * Note that we must never write over the final filename due to
+ * compression delays causing race situations.
  */
 // ----------------------------------------------------------------------
 
@@ -350,13 +353,16 @@ void http_output_image(const Imagine::NFmiImage & theImage,
 
   // This name is unique since the process number is unique
 
-  string tmpfile;
+  string tmpfile, finalfile;
   if(theCacheFlag)
 	tmpfile = ("/tmp/cropper/"
 			   + NFmiStringTools::Convert(::getpid())
 			   + "." + theType);
   else
-	tmpfile = cachename(getenv("QUERY_STRING"));
+	{
+	  finalfile = cachename(getenv("QUERY_STRING"));
+	  tmpfile = finalfile + "." + NFmiStringTools::Convert(::getpid());
+	}
 
   theImage.Write(tmpfile,theType);
 
@@ -375,6 +381,8 @@ void http_output_image(const Imagine::NFmiImage & theImage,
 
   if(theCacheFlag)
 	NFmiFileSystem::RemoveFile(tmpfile);
+  else
+	NFmiFileSystem::RenameFile(tmpfile,finalfile);
 
 }
 
@@ -1369,4 +1377,3 @@ int domain(int argc, const char * argv[])
   return 0;
 
 }
-
