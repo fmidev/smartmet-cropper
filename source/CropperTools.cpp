@@ -228,7 +228,7 @@ bool not_modified(const string & theFile)
   if(!NFmiFileSystem::FileExists(tmpfile) ||
 	 !NFmiFileSystem::FileExists(theFile))
 	{
-	  cout << "Status: 304 Not Modified" << endl;
+	  cout << "Status: 304 Not Modified" << endl << endl;
 	  return true;
 	}
 
@@ -237,7 +237,7 @@ bool not_modified(const string & theFile)
 	 NFmiFileSystem::FileModificationTime(tmpfile))
 	return false;
 
-  cout << "Status: 304 Not Modified" << endl;
+  cout << "Status: 304 Not Modified" << endl << endl;
   return true;
 }
 
