@@ -26,6 +26,9 @@
 // imagine
 #include "NFmiImageTools.h"
 
+// webauthenticator
+#include "webauthenticator.h"
+
 // system
 
 #include <algorithm>
@@ -189,6 +192,11 @@ void http_output_image(const string & theFile)
 const string cachename(const string & theQueryString)
 {
   string path = "/tmp/cropper";
+
+  WebAuthenticator auth;
+  string md5 = auth.MD5Digest("cropper",theQueryString);
+  path += "/";
+  path += md5.substr(0,2);
 
   if(!NFmiFileSystem::CreateDirectory(path))
 	throw runtime_error("Unable to create path /tmp/cropper for temporary files");
