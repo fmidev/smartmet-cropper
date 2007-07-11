@@ -285,7 +285,7 @@ bool http_output_cache(const char * theQueryString)
 
 auto_ptr<NFmiArea> create_map(const string & theMap)
 {
-  const string areafile = "/data/share/maps/" + theMap + "/area.cnf";
+  const string areafile = "/smartmet/share/maps/" + theMap + "/area.cnf";
   if(!NFmiFileSystem::FileExists(areafile))
 	throw runtime_error("Map name '"+theMap+"' is not recognized");
 
@@ -326,7 +326,7 @@ auto_ptr<NFmiArea> create_map(const string & theMap)
 
 const NFmiPoint find_location(const string & theName)
 {
-  const string coordfile = "/data/share/coordinates/kaikki.txt";
+  const string coordfile = "/smartmet/share/coordinates/kaikki.txt";
 
   NFmiLocationFinder finder;
   if(!finder.AddFile(coordfile,false))

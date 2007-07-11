@@ -226,12 +226,12 @@ Mahdolliset alignment arvot ovat Center, East, NortHEast, North jne.
 Tietokannat on toistaiseksi toteutettu tiedostopohjaisina.
 Paikkakuntien nimet on tallennettu tiedostoon
 \code
-/data/share/coordinates/kaikki.txt
+/smartmet/share/coordinates/kaikki.txt
 \endcode
 Jos kartan nimi on \c tyyli/alue haetaan kartan m‰‰rittelyt
 tiedostosta
 \code
-/data/share/maps/tyyli/alue/alue.cnf
+/smartmet/share/maps/tyyli/alue/alue.cnf
 \endcode
 
 \section cropper_kuvaformaatit Kuvaformaatit
