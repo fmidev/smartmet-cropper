@@ -25,15 +25,12 @@ make %{_smp_mflags}
 
 %install
 make install prefix="${RPM_BUILD_ROOT}"
-mkdir -p ${RPM_BUILD_ROOT}/smartmet/src/c++/bin/cropper
-cp -r . ${RPM_BUILD_ROOT}/smartmet/src/c++/bin/cropper
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,www,www,0775)
-/smartmet/src/c++/bin/cropper
 /usr/bin/cropper
 /usr/bin/cropper_auth
 
