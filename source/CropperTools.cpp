@@ -20,6 +20,7 @@
 #include "NFmiImageTools.h"
 #include "NFmiLocationFinder.h"
 #include "NFmiPath.h"
+#include "NFmiSettings.h"
 #include "NFmiStringTools.h"
 #include "NFmiStringTools.h"
 
@@ -44,6 +45,10 @@
 #include "unistd.h"
 
 using namespace std;
+
+// Cache directory
+
+const string default_cachedir = "/tmp/cropper";
 
 // ----------------------------------------------------------------------
 /*!
@@ -191,15 +196,14 @@ void http_output_image(const string & theFile)
 
 const string cachename(const string & theQueryString)
 {
-  string path = "/tmp/cropper";
+  string cachedir = NFmiSettings::Optional<string>("cropper::cachedir",default_cachedir);
 
   WebAuthenticator auth;
   string md5 = auth.MD5Digest("cropper",theQueryString);
-  path += "/";
-  path += md5.substr(0,2);
+  string path = cachedir + "/" + md5.substr(0,2);
 
   if(!NFmiFileSystem::CreateDirectory(path))
-	throw runtime_error("Unable to create path /tmp/cropper for temporary files");
+	throw runtime_error("Unable to create path "+path+" for temporary files");
 
   // Encode
   string name1 = NFmiStringTools::UrlEncode(theQueryString);
