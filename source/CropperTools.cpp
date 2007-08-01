@@ -44,6 +44,12 @@
 #include "sys/types.h"
 #include "unistd.h"
 
+#ifdef UNIX
+extern "C" {
+  #include <syslog.h>
+}
+#endif
+
 using namespace std;
 
 // Cache directory
@@ -1178,7 +1184,12 @@ int domain(int argc, const char * argv[])
   typedef map<string,string> Options;
   Options options;
 
-  const string default_timezone = "Europe/Helsinki";
+#ifdef UNIX
+  const bool syslog_active = NFmiSettings::Optional<bool>("cropper::syslog::active",false);	  
+  const int syslog_level = NFmiSettings::Optional<int>("cropper::syslog::level",0);
+#endif
+
+  const string default_timezone = NFmiSettings::Optional<string>("cropper::timezone","Europe/Helsinki");
 
   if(getenv("QUERY_STRING") != 0)
 	{
@@ -1270,12 +1281,29 @@ int domain(int argc, const char * argv[])
 
   // Handle a possible HTTP_IF_MODIFIED_SINCE query
   if(not_modified(imagefile))
-	return 0;
+	{
+#ifdef UNIX
+	  if(syslog_active && syslog_level >= 3 && getenv("QUERY_STRING") != 0)
+		{
+		  openlog("cropper",LOG_PID,LOG_LOCAL2);
+		  syslog(LOG_INFO,"not modified: %s",getenv("QUERY_STRING"));
+		}
+#endif
+	  return 0;
+	}
 
   // Quick special case
 
   if(!has_modifying_options)
 	{
+#ifdef UNIX
+	  if(syslog_active && syslog_level >= 2 && getenv("QUERY_STRING") != 0)
+		{
+		  openlog("cropper",LOG_PID,LOG_LOCAL2);
+		  syslog(LOG_INFO,"regular image: %s",getenv("QUERY_STRING"));
+		}
+#endif
+
 	  if(has_option_o)
 		NFmiFileSystem::CopyFile(imagefile,options.find("o")->second);
 	  else
@@ -1287,9 +1315,27 @@ int domain(int argc, const char * argv[])
 
   if(!has_option_C && !has_option_o)
 	{
+#ifdef UNIX
+	  if(syslog_active && syslog_level >= 2 && getenv("QUERY_STRING") != 0)
+		{
+		  openlog("cropper",LOG_PID,LOG_LOCAL2);
+		  syslog(LOG_INFO,"cached image: %s",getenv("QUERY_STRING"));
+		}
+#endif
+
 	  if(http_output_cache(getenv("QUERY_STRING")))
 		return 0;
 	}
+
+  // Make log entry
+
+#ifdef UNIX
+  if(syslog_active && syslog_level >= 1 && getenv("QUERY_STRING") != 0)
+	{
+	  openlog("cropper",LOG_PID,LOG_LOCAL2);
+	  syslog(LOG_INFO,"new image: %s",getenv("QUERY_STRING"));
+	}
+#endif
 
   // Set timestring language
 
