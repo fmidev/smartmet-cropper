@@ -16,8 +16,8 @@ CFLAGS = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS)
 CFLAGS_RELEASE = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
 LDFLAGS = 
 ARFLAGS = -r
-INCLUDES = -I $(includedir) -I $(includedir)/newbase -I $(includedir)/webauthenticator -I $(includedir)/imagine -I /usr/include/freetype2
-LIBS = -L$(libdir) -limagine -lnewbase -lwebauthenticator -lfreetype -ljpeg -lpng -lz
+INCLUDES = -I $(includedir) -I $(includedir)/smartmet/newbase -I $(includedir)/smartmet/webauthenticator -I $(includedir)/smartmet/imagine -I /usr/include/freetype2
+LIBS = -L$(libdir) -lsmartmet_imagine -lsmartmet_newbase -lsmartmet_webauthenticator -lfreetype -ljpeg -lpng -lz
 
 # Common library compiling template
 
