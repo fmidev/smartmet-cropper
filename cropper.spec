@@ -2,7 +2,7 @@
 Summary: cropper
 Name: smartmet-%{BINNAME}
 Version: 1.0.1
-Release: 2.el5.fmi
+Release: 3.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -35,6 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
+* Mon Sep 24 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-3.el5.fmi
+- Fixed "make depend".
 * Fri Sep 14 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-2.el5.fmi
 - Improved make system
 * Thu Jun  7 2007 tervo <tervo@xodin.weatherproof.fi> - 1.0.1-1.el5.fmi
