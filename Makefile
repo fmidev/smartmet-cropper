@@ -1,15 +1,15 @@
 HTML = cropper
-PROG = cropper cropper_auth
+PROG =	cropper cropper_auth
 
 MAINFLAGS = -Wall -W -Wno-unused-parameter
 
-EXTRAFLAGS = -pedantic -Wpointer-arith -Wcast-qual \
+EXTRAFLAGS = -Werror -pedantic -Wpointer-arith -Wcast-qual \
 	-Wcast-align -Wwrite-strings -Wconversion -Winline \
 	-Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-pmf-conversions \
 	-Wsign-promo -Wchar-subscripts -Wold-style-cast \
-	-Wredundant-decls -Wshadow -Woverloaded-virtual
+	-Wredundant-decls -Woverloaded-virtual
 
-DIFFICULTFLAGS = -Weffc++ -Wunreachable-code
+DIFFICULTFLAGS = -Weffc++ -Wunreachable-code -Wshadow
 
 CC = g++
 
@@ -28,17 +28,16 @@ LDFLAGS_PROFILE =
 
 INCLUDES = -I$(includedir) \
 	-I$(includedir)/smartmet \
-	-I$(includedir)/smartmet/newbase \
-	-I$(includedir)/smartmet/imagine \
-	-I$(includedir)/smartmet/webauthenticator
+	-I$(includedir)/smartmet/newbase
 
 LIBS = -L$(libdir) \
 	-lsmartmet_imagine \
 	-lsmartmet_newbase \
 	-lsmartmet_webauthenticator \
-	-lfreetype -ljpeg -lpng -lz
-
-# -lboost_iostreams
+	-lboost_iostreams -lbz2 \
+	-lboost_regex \
+	-lboost_filesystem \
+	-lfreetype -ljpeg -lpng -lz \
 
 # Common library compiling template
 
@@ -173,5 +172,9 @@ tag:
 
 .cpp.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $(objdir)/$@ $<
+
+# sstream haittaa
+qdpoint.o: qdpoint.cpp
+	$(CC) $(CFLAGS) -Wno-error $(INCLUDES) -c -o obj/$@ $<
 
 -include Dependencies

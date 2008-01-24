@@ -13,8 +13,8 @@
 class NFmiArea;
 class NFmiPoint;
 
-#include "NFmiColorTools.h"
-#include "NFmiImage.h"
+#include <imagine/NFmiColorTools.h>
+#include <imagine/NFmiImage.h>
 
 
 void usage(const std::string & theProgName);

@@ -9,7 +9,7 @@
 // ======================================================================
 
 #include "CropperTools.h"
-#include "webauthenticator.h"
+#include <webauthenticator/webauthenticator.h>
 
 #include <iostream>
 

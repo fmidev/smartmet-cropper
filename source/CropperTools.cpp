@@ -7,30 +7,21 @@
 
 #include "CropperTools.h"
 
-// newbase
-#include "NFmiAlignment.h"
-#include "NFmiArea.h"
-#include "NFmiAreaFactory.h"
-#include "NFmiCmdLine.h"
-#include "NFmiFace.h"
-#include "NFmiFileSystem.h"
-#include "NFmiFileSystem.h"
-#include "NFmiFreeType.h"
-#include "NFmiImage.h"
-#include "NFmiImageTools.h"
-#include "NFmiLocationFinder.h"
-#include "NFmiPath.h"
-#include "NFmiSettings.h"
-#include "NFmiStringTools.h"
-#include "NFmiStringTools.h"
-
-// imagine
-#include "NFmiImageTools.h"
-
-// webauthenticator
-#include "webauthenticator.h"
-
-// system
+#include <imagine/NFmiAlignment.h>
+#include <imagine/NFmiFace.h>
+#include <imagine/NFmiFreeType.h>
+#include <imagine/NFmiImage.h>
+#include <imagine/NFmiImageTools.h>
+#include <imagine/NFmiImageTools.h>
+#include <imagine/NFmiPath.h>
+#include <newbase/NFmiArea.h>
+#include <newbase/NFmiAreaFactory.h>
+#include <newbase/NFmiCmdLine.h>
+#include <newbase/NFmiFileSystem.h>
+#include <newbase/NFmiLocationFinder.h>
+#include <newbase/NFmiSettings.h>
+#include <newbase/NFmiStringTools.h>
+#include <webauthenticator/webauthenticator.h>
 
 #include <algorithm>
 #include <clocale>

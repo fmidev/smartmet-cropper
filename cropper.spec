@@ -1,16 +1,16 @@
 %define BINNAME cropper
 Summary: cropper
 Name: smartmet-%{BINNAME}
-Version: 1.0.1
-Release: 3.el5.fmi
+Version: 8.1.24
+Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
-BuildRequires: libsmartmet-newbase >= 1.0.1-1, libsmartmet-imagine >= 1.0.1-1, libsmartmet-webauthenticator => 1.0.1-1, libjpeg, libjpeg-devel, libpng-devel,  zlib, zlib-devel
+BuildRequires: libsmartmet-newbase >= 1.0.5-1, libsmartmet-imagine >= 1.0.4-1,  libjpeg, libjpeg-devel, libpng-devel,  zlib, zlib-devel
 Requires: glibc, libgcc, libjpeg, libpng,  libstdc++, zlib
-Provides: cropper, cropper_auth
+Provides: cropper cropper_auth
 
 %description
 FMI cropper
@@ -21,7 +21,7 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q -n %{BINNAME}
  
 %build
-make %{_smp_mflags} 
+make %{_smp_mflags}
 
 %install
 %makeinstall
@@ -35,10 +35,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
-* Mon Sep 24 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-3.el5.fmi
-- Fixed "make depend".
-* Fri Sep 14 2007 mheiskan <mika.heiskanen@fmi.fi> - 1.0.1-2.el5.fmi
-- Improved make system
-* Thu Jun  7 2007 tervo <tervo@xodin.weatherproof.fi> - 1.0.1-1.el5.fmi
-- Initial build.
+* Thu Jan 24 2007 mheiskan <mika.heiskanen@fmi.fi> - 8.1.24-1.el5.fmi
+- Initial build
 
