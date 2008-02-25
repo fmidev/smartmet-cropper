@@ -64,7 +64,8 @@ int main(int argc, const char * argv[])
 		}
 	  else
 		{
-		  cout << "Status: " << e.status() << ' ' << e.what() << endl;
+		  cout << "Content-Type: text/plain" << endl
+			   << "Status: " << e.status() << ' ' << e.what() << endl << endl;
 		}
 	}
 
@@ -77,7 +78,8 @@ int main(int argc, const char * argv[])
 		}
 	  else
 		{
-		  cout << "Status: 409 " << e.what() << endl;
+		  cout << "Content-Type: text/plain" << endl
+			   << "Status: 409 " << e.what() << endl << endl;
 		}
 	}
 
@@ -86,7 +88,8 @@ int main(int argc, const char * argv[])
 	  if(!httpmode)
 		cerr << "Error: Caught an unknown exception" << endl;
 	  else
-		cout << "Status: 409 Unknown exception occurred" << endl;
+		cout << "Content-Type: text/plain" << endl
+			 << "Status: 409 Unknown exception occurred" << endl << endl;
 	}
   return 1;
 }

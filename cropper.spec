@@ -2,7 +2,7 @@
 Summary: cropper
 Name: smartmet-%{BINNAME}
 Version: 8.2.25
-Release: 1.el5.fmi
+Release: 2.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -35,7 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
-* Mon Feb 25 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.2.25-1.el5.fmi
+* Mon Feb 25 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.2.25-2.el5.fmi
 - Improvements in status code generation
 * Thu Jan 24 2007 mheiskan <mika.heiskanen@fmi.fi> - 8.1.24-1.el5.fmi
 - Initial build

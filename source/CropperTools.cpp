@@ -176,11 +176,12 @@ void http_output_image(const string & theFile)
 
   string mime = Imagine::NFmiImageTools::MimeType(theFile);
 
-  cout << "Content-Type: image/" << mime << endl
-	   << "Expires: " << format_time(expiration_time) << endl
-	   << "Last-Modified: " << format_time(last_modified) << endl
-	   << "Cache-Control: max-age=" << maxage << ", public" << endl
-	   << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << endl
+  cout << "Status: 200 OK\n"
+	   << "Content-Type: image/" << mime << '\n'
+	   << "Expires: " << format_time(expiration_time) << '\n'
+	   << "Last-Modified: " << format_time(last_modified) << '\n'
+	   << "Cache-Control: max-age=" << maxage << ", public" << '\n'
+	   << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << '\n'
 	   << endl
 	   << in.rdbuf();
   in.close();
@@ -380,7 +381,8 @@ void http_output_image(const Imagine::NFmiImage & theImage,
   if(!in)
 	throw CropperException(500,"Unable to create temporary file");
 
-  cout << "Content-Type: image/" << theType << endl
+  cout << "Status: 200 OK\n"
+	   << "Content-Type: image/" << theType << endl
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
 	   << "Cache-Control: max-age=" << maxage << ", public" << endl
