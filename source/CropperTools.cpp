@@ -167,7 +167,7 @@ void http_output_image(const string & theFile)
 {
   ifstream in(theFile.c_str(), ios::in|ios::binary);
   if(!in)
-	throw CropperException(404,"File "+theFile+" is missing");
+	throw CropperException(404,"File missing");
 
   // We expire everything in 24 hours
   const long maxage = 24*3600;
@@ -1269,7 +1269,7 @@ int domain(int argc, const char * argv[])
 
   const string imagefile = options.find("f")->second;
   if(!NFmiFileSystem::FileExists(imagefile))
-	throw CropperException(410,"File "+imagefile+" is no longer available");
+	throw CropperException(410,"File is no longer available");
 
   // Handle a possible HTTP_IF_MODIFIED_SINCE query
   if(not_modified(imagefile))
