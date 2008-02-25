@@ -6,6 +6,7 @@
 // ======================================================================
 
 #include "CropperTools.h"
+#include "CropperException.h"
 
 #include <imagine/NFmiAlignment.h>
 #include <imagine/NFmiFace.h>
@@ -166,7 +167,7 @@ void http_output_image(const string & theFile)
 {
   ifstream in(theFile.c_str(), ios::in|ios::binary);
   if(!in)
-	throw runtime_error("Image '"+theFile+"' was lost!");
+	throw CropperException(404,"File "+theFile+" is missing");
 
   // We expire everything in 24 hours
   const long maxage = 24*3600;
@@ -200,7 +201,7 @@ const string cachename(const string & theQueryString)
   string path = cachedir + "/" + md5.substr(0,2);
 
   if(!NFmiFileSystem::CreateDirectory(path))
-	throw runtime_error("Unable to create path "+path+" for temporary files");
+	throw CropperException(500,"Unable to create cache directory for temporary files");
 
   // Encode
   string name1 = NFmiStringTools::UrlEncode(theQueryString);
@@ -288,11 +289,11 @@ auto_ptr<NFmiArea> create_map(const string & theMap)
 {
   const string areafile = "/smartmet/share/maps/" + theMap + "/area.cnf";
   if(!NFmiFileSystem::FileExists(areafile))
-	throw runtime_error("Map name '"+theMap+"' is not recognized");
+	throw CropperException(400,"Map "+theMap+" is not available");
 
   ifstream in(areafile.c_str(),ios::in);
   if(!in)
-	throw runtime_error("Failed to open system file '"+areafile+"' for reading");
+	throw CropperException(400,"Map "+theMap+" is not available");
 
   // Seek the first "projection" token, the description follows
   // However we must be sure to skip comment rows
@@ -310,7 +311,7 @@ auto_ptr<NFmiArea> create_map(const string & theMap)
 		  return NFmiAreaFactory::Create(token);
 		}
 	}
-  throw runtime_error("The file '"+areafile+"' does not contain a projection description with a projection command");
+  throw CropperException(400,"Map "+theMap+" is not available");
 
 }
 
@@ -331,11 +332,11 @@ const NFmiPoint find_location(const string & theName)
 
   NFmiLocationFinder finder;
   if(!finder.AddFile(coordfile,false))
-	throw runtime_error("Failed to read '"+coordfile+"'");
+	throw CropperException(500,"Failed to read coordinate database");
 
   const NFmiPoint lonlat = finder.Find(theName);
   if(finder.LastSearchFailed())
-	throw runtime_error("Location name '"+theName+"' coordinates unknown");
+	throw CropperException(400,"Location '"+theName+"' unknown");
   
   return lonlat;
   
@@ -377,7 +378,7 @@ void http_output_image(const Imagine::NFmiImage & theImage,
 
   ifstream in(tmpfile.c_str(), ios::in|ios::binary);
   if(!in)
-	throw runtime_error("Was unable to create temporary file");
+	throw CropperException(500,"Unable to create temporary file");
 
   cout << "Content-Type: image/" << theType << endl
 	   << "Expires: " << format_time(expiration_time) << endl
@@ -418,13 +419,13 @@ void parse_geometry(const string & theGeometry,
 					int & height)
 {
   if(theGeometry.empty())
-	throw runtime_error("The geometry specification is empty!");
+	throw CropperException(400,"The geometry specification is empty!");
 
   istringstream geom(theGeometry);
   char ch1, ch2, ch3;
   geom >> width >> ch1 >> height >> ch2 >> x1 >> ch3 >> y1;
   if(geom.fail() || ch1 != 'x' || ch2 != '+' || ch3!='+')
-	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
+	throw CropperException(400,"Failed to parse geometry '"+theGeometry+"'");
 }
 
 // ----------------------------------------------------------------------
@@ -450,13 +451,13 @@ void parse_center_geometry(const string & theGeometry,
 						   int & height)
 {
   if(theGeometry.empty())
-	throw runtime_error("The geometry specification is empty!");
+	throw CropperException(400,"The geometry specification is empty!");
 
   istringstream geom(theGeometry);
   char ch1, ch2, ch3;
   geom >> width >> ch1 >> height >> ch2 >> xc >> ch3 >> yc;
   if(geom.fail() || ch1 != 'x' || ch2 != '+' || ch3!='+')
-	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
+	throw CropperException(400,"Failed to parse geometry '"+theGeometry+"'");
 }
 
 // ----------------------------------------------------------------------
@@ -483,7 +484,7 @@ auto_ptr<NFmiArea> parse_latlon_geometry(const string & theGeometry,
 										 int & height)
 {
   if(theGeometry.empty())
-	throw runtime_error("The geometry specification is empty!");
+	throw CropperException(400,"The geometry specification is empty!");
 
   istringstream geom(theGeometry);
   string mapname;
@@ -491,13 +492,13 @@ auto_ptr<NFmiArea> parse_latlon_geometry(const string & theGeometry,
   char ch1,ch2;
   geom >> width >> ch1 >> height >> lon >> lat >> ch2 >> mapname;
   if(geom.fail() || ch1 != 'x' || ch2 != ':')
-	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
+	throw CropperException(400,"Failed to parse geometry '"+theGeometry+"'");
 
   if(lon<-180 || lon>180)
-	throw runtime_error("Longitude out of bounds in '"+theGeometry+"'");
+	throw CropperException(400,"Longitude out of bounds in '"+theGeometry+"'");
 
   if(lat<-90 || lat>90)
-	throw runtime_error("Latitude out of bounds in '"+theGeometry+"'");
+	throw CropperException(400,"Latitude out of bounds in '"+theGeometry+"'");
 
   auto_ptr<NFmiArea> area = create_map(mapname);
 
@@ -533,7 +534,7 @@ auto_ptr<NFmiArea> parse_named_geometry(const string & theGeometry,
 										int & height)
 {
   if(theGeometry.empty())
-	throw runtime_error("The geometry specification is empty!");
+	throw CropperException(400,"The geometry specification is empty!");
 
   istringstream geom(theGeometry);
   char ch1,ch2;
@@ -542,7 +543,7 @@ auto_ptr<NFmiArea> parse_named_geometry(const string & theGeometry,
   getline(geom,cityname,':');
   getline(geom,mapname);
   if(geom.fail() || ch1 != 'x' || ch2 != '+')
-	throw runtime_error("Failed to parse geometry '"+theGeometry+"'");
+	throw CropperException(400,"Failed to parse geometry '"+theGeometry+"'");
   
   const NFmiPoint city = find_location(cityname);
 
@@ -582,7 +583,7 @@ auto_ptr<Imagine::NFmiImage> crop_corner(const Imagine::NFmiImage & theImage,
 										 int & theYoff)
 {
   if(theWidth < 1 || theHeight < 1)
-	throw runtime_error("Image width and height must be positive");
+	throw CropperException(400,"Image width and height must be positive");
 
   // Shrink size if desired size is larger than image
   const int width = min(theWidth,theImage.Width());
@@ -633,7 +634,7 @@ auto_ptr<Imagine::NFmiImage> crop_center(const Imagine::NFmiImage & theImage,
 										 int & theYoff)
 {
   if(theWidth < 1 || theHeight < 1)
-	throw runtime_error("Image width and height must be positive");
+	throw CropperException(400,"Image width and height must be positive");
 
   // Shrink size if desired size is larger than image
   const int width = min(theWidth,theImage.Width());
@@ -826,7 +827,7 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
   // Compulsory options
 
   if(parts.size() < 2)
-	throw runtime_error("Too short option string '"+theOptions+"'");
+	throw CropperException(400,"Too short option string '"+theOptions+"'");
 
   int x = NFmiStringTools::Convert<int>(parts[0]);
   int y = NFmiStringTools::Convert<int>(parts[1]);
@@ -845,17 +846,17 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
   // Extra parts
 
   if(parts.size() > i+1)
-	throw runtime_error("Too many -T parts in option '"+theOptions+"'");
+	throw CropperException(400,"Too many -T parts in option '"+theOptions+"'");
 
   // Parse the font option
 
   vector<string> fontparts = NFmiStringTools::Split(font,":");
   if(fontparts.size() != 2)
-	throw runtime_error("Invalid font specification for option -T : '"+font+"'");
+	throw CropperException(400,"Invalid font specification for option -T : '"+font+"'");
   font = fontparts[0];
   fontparts = NFmiStringTools::Split(fontparts[1],"x");
   if(fontparts.size() != 2)
-	throw runtime_error("Invalid font size specification for option -T : '"+fontparts[1]+"'");
+	throw CropperException(400,"Invalid font size specification for option -T : '"+fontparts[1]+"'");
   const int width = NFmiStringTools::Convert<int>(fontparts[0]);
   const int height = NFmiStringTools::Convert<int>(fontparts[1]);
   
@@ -863,13 +864,13 @@ void draw_timestamp(Imagine::NFmiImage & theImage,
 
   Imagine::NFmiColorTools::Color fontcolor = parse_color(color);
   if(fontcolor == Imagine::NFmiColorTools::MissingColor)
-	throw runtime_error("Unknown font color '"+color+"'");
+	throw CropperException(400,"Unknown font color '"+color+"'");
 
   // Parse the background color option
 
   Imagine::NFmiColorTools::Color backcolor = parse_color(backgroundcolor);
   if(backcolor == Imagine::NFmiColorTools::MissingColor)
-	throw runtime_error("Unknown font color '"+backgroundcolor+"'");
+	throw CropperException(400,"Unknown font color '"+backgroundcolor+"'");
 
   // Establish text coordinates and alignment
 
@@ -962,7 +963,7 @@ void draw_labels(Imagine::NFmiImage & theImage,
 	  // compulsory parts: text,lon,lat
 
 	  if(words.size() < 3)
-		throw runtime_error("Too short option string '"+theOptions+"' for option -L");
+		throw CropperException(400,"Too short option string '"+theOptions+"' for option -L");
 
 	  const string text = words[0];
 	  const double lon = NFmiStringTools::Convert<double>(words[1]);
@@ -982,17 +983,17 @@ void draw_labels(Imagine::NFmiImage & theImage,
 	  // Extra parts
 
 	  if(words.size() > i+1)
-		throw runtime_error("Too many -L parts in option '"+*it+"'");
+		throw CropperException(400,"Too many -L parts in option '"+*it+"'");
 
 	  // Parse the font option
 
 	  vector<string> fontparts = NFmiStringTools::Split(font,":");
 	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font specification for option -L : '"+font+"'");
+		throw CropperException(400,"Invalid font specification for option -L : '"+font+"'");
 	  font = fontparts[0];
 	  fontparts = NFmiStringTools::Split(fontparts[1],"x");
 	  if(fontparts.size() != 2)
-		throw runtime_error("Invalid font size specification for option -L : '"+fontparts[1]+"'");
+		throw CropperException(400,"Invalid font size specification for option -L : '"+fontparts[1]+"'");
 	  const int width = NFmiStringTools::Convert<int>(fontparts[0]);
 	  const int height = NFmiStringTools::Convert<int>(fontparts[1]);
   
@@ -1000,19 +1001,19 @@ void draw_labels(Imagine::NFmiImage & theImage,
 	  
 	  Imagine::NFmiColorTools::Color fontcolor = parse_color(color);
 	  if(fontcolor == Imagine::NFmiColorTools::MissingColor)
-		throw runtime_error("Unknown font color '"+color+"'");
+		throw CropperException(400,"Unknown font color '"+color+"'");
 
 	  // Parse the background color option
 	  
 	  Imagine::NFmiColorTools::Color backcolor = parse_color(backgroundcolor);
 	  if(backcolor == Imagine::NFmiColorTools::MissingColor)
-		throw runtime_error("Unknown font color '"+backgroundcolor+"'");
+		throw CropperException(400,"Unknown font color '"+backgroundcolor+"'");
 	  
 	  // Parse the alignment option
 
 	  Imagine::NFmiAlignment align = Imagine::AlignmentValue(alignment);
 	  if(align == Imagine::kFmiAlignMissing)
-		throw runtime_error("Unknown alignment '"+alignment+"'");
+		throw CropperException(400,"Unknown alignment '"+alignment+"'");
 
 	  // Calculate the text coordinates
 
@@ -1098,7 +1099,7 @@ void draw_image(Imagine::NFmiImage & theImage,
 
   const vector<string> parts = NFmiStringTools::Split(theOptions);
   if(parts.size() % 3 != 0)
-	throw runtime_error("Option -I argument should be of form image,x,y,...");
+	throw CropperException(400,"Option -I argument should be of form image,x,y,...");
 
   for(unsigned int i=0; i<parts.size(); i+=3)
 	{
@@ -1154,7 +1155,7 @@ void draw_image(Imagine::NFmiImage & theImage,
 void reduce_colors(Imagine::NFmiImage & theImage, const string & theSpecs)
 {
   if(theSpecs.size() != 4)
-	throw runtime_error("Invalid color reduction specification '"+theSpecs+"'");
+	throw CropperException(400,"Invalid color reduction specification '"+theSpecs+"'");
   int r = theSpecs[0] - '0';
   int g = theSpecs[1] - '0';
   int b = theSpecs[2] - '0';
@@ -1191,10 +1192,10 @@ int domain(int argc, const char * argv[])
 	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!AZ:hk!");
 
 	  if(cmdline.Status().IsError())
-		throw runtime_error(cmdline.Status().ErrorLog().CharPtr());
+		throw CropperException(400,cmdline.Status().ErrorLog().CharPtr());
 
 	  if(cmdline.NumberofParameters() != 0)
-		throw runtime_error("No command line parameters are expected");
+		throw CropperException(400,"No command line parameters are expected");
 
 	  if(cmdline.isOption('h'))
 		{
@@ -1259,16 +1260,16 @@ int domain(int argc, const char * argv[])
 	   (options.size() == 1 && options.find("o")!=end));
 
   if(!has_option_f)
-	throw runtime_error("Must give image name to be cropped");
+	throw CropperException(400,"Must give image name to be cropped");
 
   if(has_option_g + has_option_c + has_option_p + has_option_l > 1)
-	throw runtime_error("Too many cropping geometries defined, use only one");
+	throw CropperException(400,"Too many cropping geometries defined, use only one");
 
   // Check the image exists
 
   const string imagefile = options.find("f")->second;
   if(!NFmiFileSystem::FileExists(imagefile))
-	throw runtime_error("The desired image '"+imagefile+"' does not exist");
+	throw CropperException(410,"File "+imagefile+" is no longer available");
 
   // Handle a possible HTTP_IF_MODIFIED_SINCE query
   if(not_modified(imagefile))
@@ -1385,7 +1386,7 @@ int domain(int argc, const char * argv[])
   if(has_option_L)
 	{
 	  if(area.get() == 0)
-		throw runtime_error("Cannot draw labels onto image without a projection obtained from cropping");
+		throw CropperException(400,"Cannot draw labels onto image without a projection obtained from cropping");
 	  draw_labels(*cropped,*area,xoff,yoff,options.find("L")->second);
 	}
 

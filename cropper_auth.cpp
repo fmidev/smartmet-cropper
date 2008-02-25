@@ -9,6 +9,7 @@
 // ======================================================================
 
 #include "CropperTools.h"
+#include "CropperException.h"
 #include <webauthenticator/webauthenticator.h>
 
 #include <iostream>
@@ -52,6 +53,19 @@ int main(int argc, const char * argv[])
   try
 	{
 	  return domain(argc, argv);
+	}
+
+  catch(CropperException & e)
+	{
+	  if(!httpmode)
+		{
+		  cerr << "Error: Caught an exception:" << endl
+			   << e.what() << endl;
+		}
+	  else
+		{
+		  cout << "Status: " << e.status() << ' ' << e.what() << endl;
+		}
 	}
 
   catch(exception & e)
