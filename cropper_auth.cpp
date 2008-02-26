@@ -33,7 +33,8 @@ int main(int argc, const char * argv[])
 	  if ( authorizer.isValidQuery(getenv("QUERY_STRING")) == false)
 		{
 		  // Query string not validated, print error message and quit program
-		  cout << "Status: 409 Authentication Failed" << endl;
+		  cout << "Content-Type: text/plain" << endl
+			   << "Status: 409 Authentication Failed" << endl << endl;
 
 		  return 1;
 		}

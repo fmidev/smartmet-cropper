@@ -1,8 +1,8 @@
 %define BINNAME cropper
 Summary: cropper
 Name: smartmet-%{BINNAME}
-Version: 8.2.25
-Release: 2.el5.fmi
+Version: 8.2.26
+Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -35,6 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
+* Tue Feb 26 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.2.26-1.el5.fmi
+- Fix output on authentication failures
 * Mon Feb 25 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.2.25-2.el5.fmi
 - Improvements in status code generation
 * Thu Jan 24 2007 mheiskan <mika.heiskanen@fmi.fi> - 8.1.24-1.el5.fmi
