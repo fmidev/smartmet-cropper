@@ -386,7 +386,7 @@ void http_output_image(const Imagine::NFmiImage & theImage,
 	   << "Expires: " << format_time(expiration_time) << endl
 	   << "Last-Modified: " << format_time(last_modified) << endl
 	   << "Cache-Control: max-age=" << maxage << ", public" << endl
-	   << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << endl
+	   << "Content-Length: " << NFmiFileSystem::FileSize(tmpfile) << endl
 	   << endl
 	   << in.rdbuf();
   in.close();
