@@ -1,7 +1,7 @@
 %define BINNAME cropper
 Summary: cropper
 Name: smartmet-%{BINNAME}
-Version: 8.2.27
+Version: 8.5.7
 Release: 1.el5.fmi
 License: FMI
 Group: Development/Tools
@@ -35,6 +35,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
+* Wed May 7 2008 oksman <santeri.oksman@fmi.fi> - 8.5.7-1.el5.fmi
+- Fixed version naming convention
 * Fri Apr 25 2008 oksman <santeri.oksman@fmi.fi> - 8.2.27-1.el5.fmi
 - Fixed a bug that caused wrong content-length header
 * Tue Feb 26 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.2.26-1.el5.fmi
