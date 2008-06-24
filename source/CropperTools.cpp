@@ -1349,18 +1349,9 @@ int domain(int argc, const char * argv[])
 
   auto_ptr<Imagine::NFmiImage> cropped(new Imagine::NFmiImage(imagefile));
   string imagetype = cropped->Type();
+
   if(has_option_O)
 	options.find("O")->second;
-
-  if(has_option_z)
-	{
-	  int level = boost::lexical_cast<int>(options.find("z")->second);
-	  if(imagetype == "png")
-		cropped->PngQuality(level);
-	  else if(imagetype == "jpeg")
-		cropped->JpegQuality(level);
-	}
-
 
   bool has_center = false;
   int xm = 0;
@@ -1439,6 +1430,15 @@ int domain(int argc, const char * argv[])
 	cropped->SaveAlpha(true);
 
   cropped->WantPalette(true);
+
+  if(has_option_z)
+	{
+	  int level = boost::lexical_cast<int>(options.find("z")->second);
+	  if(imagetype == "png")
+		cropped->PngQuality(level);
+	  else if(imagetype == "jpeg")
+		cropped->JpegQuality(level);
+	}
 
   if(has_option_o)
 	{
