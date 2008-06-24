@@ -24,6 +24,7 @@
 #include <newbase/NFmiStringTools.h>
 #include <webauthenticator/webauthenticator.h>
 
+#include <boost/lexical_cast.hpp>
 #include <algorithm>
 #include <clocale>
 #include <cstdlib>
@@ -74,6 +75,8 @@ void usage(const string & theProgName)
 	   << "   -A\t\t\tKeep alpha channel" << endl
 	   << "   -f [imagefile]" << endl
 	   << "   -o [outputfile]" << endl
+	   << "   -z [compressionlevel]" << endl
+	   << "   -O [output image type]" << endl
 	   << "   -C" << endl
 	   << endl;
 }
@@ -1191,7 +1194,7 @@ int domain(int argc, const char * argv[])
 	}
   else
 	{
-	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!AZ:hk!");
+	  NFmiCmdLine cmdline(argc, argv, "f!g!c!l!p!o!T!t!M!I!L!AZ:hk!z!O!");
 
 	  if(cmdline.Status().IsError())
 		throw CropperException(400,cmdline.Status().ErrorLog().CharPtr());
@@ -1232,10 +1235,16 @@ int domain(int argc, const char * argv[])
 	  if(cmdline.isOption('k'))
 		options.insert(Options::value_type("k",cmdline.OptionValue('k')));
 	  if(cmdline.isOption('Z'))
-		if(cmdline.OptionValue('Z'))
-		  options.insert(Options::value_type("Z",cmdline.OptionValue('Z')));
-		else
-		  options.insert(Options::value_type("Z","5550"));
+		{
+		  if(cmdline.OptionValue('Z'))
+			options.insert(Options::value_type("Z",cmdline.OptionValue('Z')));
+		  else
+			options.insert(Options::value_type("Z","5550"));
+		}
+	  if(cmdline.isOption('z'))
+		options.insert(Options::value_type("z",cmdline.OptionValue('z')));
+	  if(cmdline.isOption('O'))
+		options.insert(Options::value_type("O",cmdline.OptionValue('O')));
 	}
 
   const Options::const_iterator end = options.end();
@@ -1255,6 +1264,8 @@ int domain(int argc, const char * argv[])
   const bool has_option_A = (options.find("A") != end);
   const bool has_option_Z = (options.find("Z") != end);
   const bool has_option_k = (options.find("k") != end);
+  const bool has_option_z = (options.find("z") != end);
+  const bool has_option_O = (options.find("O") != end);
 
   // -o does not modify the image
   const bool has_modifying_options
@@ -1337,7 +1348,19 @@ int domain(int argc, const char * argv[])
 	setlocale(LC_TIME,options.find("k")->second.c_str());
 
   auto_ptr<Imagine::NFmiImage> cropped(new Imagine::NFmiImage(imagefile));
-  const string imagetype = cropped->Type();
+  string imagetype = cropped->Type();
+  if(has_option_O)
+	options.find("O")->second;
+
+  if(has_option_z)
+	{
+	  int level = boost::lexical_cast<int>(options.find("z")->second);
+	  if(imagetype == "png")
+		cropped->PngQuality(level);
+	  else if(imagetype == "jpeg")
+		cropped->JpegQuality(level);
+	}
+
 
   bool has_center = false;
   int xm = 0;
