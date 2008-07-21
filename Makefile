@@ -28,16 +28,20 @@ LDFLAGS_PROFILE =
 
 INCLUDES = -I$(includedir) \
 	-I$(includedir)/smartmet \
-	-I$(includedir)/smartmet/newbase
+	-I$(includedir)/smartmet/newbase \
+	-I/usr/local/include/boost-1_35
 
 LIBS = -L$(libdir) \
 	-lsmartmet_imagine \
 	-lsmartmet_newbase \
 	-lsmartmet_webauthenticator \
-	-lboost_iostreams -lbz2 \
-	-lboost_regex \
-	-lboost_filesystem \
-	-lfreetype -ljpeg -lpng -lz \
+	-Wl,-rpath,/usr/local/lib \
+	-L /usr/local/lib \
+	-lboost_regex-gcc41-mt \
+	-lboost_filesystem-gcc41-mt \
+	-lboost_system-gcc41-mt \
+	-lboost_iostreams-gcc41-mt \
+	-lfreetype -ljpeg -lpng -lz
 
 # Common library compiling template
 
