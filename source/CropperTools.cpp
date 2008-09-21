@@ -1024,8 +1024,8 @@ void draw_labels(Imagine::NFmiImage & theImage,
 
 	  NFmiPoint xy = checkmeridian(NFmiPoint(lon,lat),theArea);
 	  xy = theArea.ToXY(xy);
-	  int xx = FmiRound(xy.X() + dx - theXoff);
-	  int yy = FmiRound(xy.Y() + dy - theYoff);
+	  int xx = static_cast<int>(round(xy.X() + dx - theXoff));
+	  int yy = static_cast<int>(round(xy.Y() + dy - theYoff));
 
 	  // Create the face and setup the background
 
