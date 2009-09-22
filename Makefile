@@ -34,10 +34,10 @@ LIBS = -L$(libdir) \
 	-lsmartmet_imagine \
 	-lsmartmet_newbase \
 	-lsmartmet_webauthenticator \
-	-lboost_regex-mt \
-	-lboost_filesystem-mt \
-	-lboost_system-mt \
-	-lboost_iostreams-mt \
+	-lboost_regex \
+	-lboost_filesystem \
+	-lboost_system \
+	-lboost_iostreams \
 	-lfreetype -ljpeg -lpng -lbz2 -lz -lpthread
 
 # Common library compiling template
