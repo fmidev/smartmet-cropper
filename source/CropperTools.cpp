@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <clocale>
 #include <cstdlib>
-#include <iostream>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
