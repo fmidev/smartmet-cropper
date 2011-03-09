@@ -13,6 +13,7 @@
 #include <webauthenticator/webauthenticator.h>
 
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
