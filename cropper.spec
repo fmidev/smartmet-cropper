@@ -2,7 +2,7 @@
 Summary: cropper
 Name: smartmet-%{BINNAME}
 Version: 8.9.29
-Release: 1.el5.fmi
+Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -35,7 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
-* Mon Sep 29 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.9.29-1.el5.fmi
+* Mon Sep 29 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.9.29-1.fmi
 - Newbase headers changed, everything is rebuilt
 * Mon Sep 22 2008 mheiskan <mika.heiskanen@fmi.fi> - 8.9.22-1.el5.fmi
 - Linked statically with boost 1.36

@@ -36,8 +36,9 @@ LIBS = -L$(libdir) \
 	-lsmartmet_webauthenticator \
 	-lboost_regex \
 	-lboost_filesystem \
-	-lboost_system \
 	-lboost_iostreams \
+	-lboost_thread \
+	-lboost_system \
 	-lfreetype -ljpeg -lpng -lbz2 -lz -lpthread
 
 # Common library compiling template
@@ -72,7 +73,7 @@ endif
 CWP = $(shell pwd)
 BIN = $(shell basename $(CWP))
 
-rpmsourcedir=$(shell test -d /smartmet && echo /smartmet/src/redhat/SOURCES || echo /fmi/dev/src/redhat/SOURCES )
+rpmsourcedir=/tmp/$(shell whoami)/rpmbuild
 
 rpmerr = "There's no spec file ($(specfile)). RPM wasn't created. Please make a spec file or copy and rename it into $(specfile)"
 
@@ -160,9 +161,11 @@ objdir:
 rpm: clean depend
 	if [ -a $(BIN).spec ]; \
 	then \
+	  mkdir -p $(rpmsourcedir) ; \
 	  tar --exclude-vcs -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
 	  gzip -f $(rpmsourcedir)/smartmet-$(BIN).tar ; \
 	  rpmbuild -ta $(rpmsourcedir)/smartmet-$(BIN).tar.gz ; \
+	  rm -f $(rpmsourcedir)/libsmartmet-$(LIB).tar.gz ; \
 	else \
 	  echo $(rpmerr); \
 	fi;
