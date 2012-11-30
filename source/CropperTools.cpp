@@ -792,7 +792,7 @@ string make_timestamp(const string & theFilename,
 	  // append forecast length
 	  ::time_t otime = ::mktime(&obstime);
 	  ::time_t ftime = ::mktime(&fortime);
-	  int hours = (otime-ftime)/3600; 
+	  int hours = static_cast<int>((otime-ftime)/3600); 
 	  ret += ' ';
 	  ret += (hours < 0 ? '-' : '+');
 	  ret += NFmiStringTools::Convert(hours);
