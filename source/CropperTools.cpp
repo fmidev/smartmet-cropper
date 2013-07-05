@@ -289,7 +289,7 @@ bool http_output_cache(const char * theQueryString)
  */
 // ----------------------------------------------------------------------
 
-auto_ptr<NFmiArea> create_map(const string & theMap)
+NFmiAreaFactory::return_type create_map(const string & theMap)
 {
   const string areafile = "/smartmet/share/maps/" + theMap + "/area.cnf";
   if(!NFmiFileSystem::FileExists(areafile))
@@ -482,14 +482,14 @@ void parse_center_geometry(const string & theGeometry,
  */
 // ----------------------------------------------------------------------
 
-auto_ptr<NFmiArea> parse_latlon_geometry(const string & theGeometry,
-										 int & xc,
-										 int & yc,
-										 int & width,
-										 int & height)
+NFmiAreaFactory::return_type parse_latlon_geometry(const string & theGeometry,
+												   int & xc,
+												   int & yc,
+												   int & width,
+												   int & height)
 {
   if(theGeometry.empty())
-	throw CropperException(400,"The geometry specification is empty!");
+	throw CropperException(400,"the geometry specification is empty!");
 
   istringstream geom(theGeometry);
   string mapname;
@@ -497,15 +497,15 @@ auto_ptr<NFmiArea> parse_latlon_geometry(const string & theGeometry,
   char ch1,ch2;
   geom >> width >> ch1 >> height >> lon >> lat >> ch2 >> mapname;
   if(geom.fail() || ch1 != 'x' || ch2 != ':')
-	throw CropperException(400,"Failed to parse geometry '"+theGeometry+"'");
+	throw CropperException(400,"failed to parse geometry '"+theGeometry+"'");
 
   if(lon<-180 || lon>180)
-	throw CropperException(400,"Longitude out of bounds in '"+theGeometry+"'");
+	throw CropperException(400,"longitude out of bounds in '"+theGeometry+"'");
 
   if(lat<-90 || lat>90)
 	throw CropperException(400,"Latitude out of bounds in '"+theGeometry+"'");
 
-  auto_ptr<NFmiArea> area = create_map(mapname);
+  NFmiAreaFactory::return_type area = create_map(mapname);
 
   NFmiPoint center = checkmeridian(NFmiPoint(lon,lat),*area);
   center = area->ToXY(center);
@@ -532,11 +532,11 @@ auto_ptr<NFmiArea> parse_latlon_geometry(const string & theGeometry,
  */
 // ----------------------------------------------------------------------
 
-auto_ptr<NFmiArea> parse_named_geometry(const string & theGeometry,
-										int & xc,
-										int & yc,
-										int & width,
-										int & height)
+NFmiAreaFactory::return_type parse_named_geometry(const string & theGeometry,
+												  int & xc,
+												  int & yc,
+												  int & width,
+												  int & height)
 {
   if(theGeometry.empty())
 	throw CropperException(400,"The geometry specification is empty!");
@@ -552,7 +552,7 @@ auto_ptr<NFmiArea> parse_named_geometry(const string & theGeometry,
   
   const NFmiPoint city = find_location(cityname);
 
-  auto_ptr<NFmiArea> area = create_map(mapname);
+  NFmiAreaFactory::return_type area = create_map(mapname);
   
   NFmiPoint center = checkmeridian(city,*area);
   center = area->ToXY(center);
@@ -1363,7 +1363,7 @@ int domain(int argc, const char * argv[])
 
   // The established projection, if any
 
-  auto_ptr<NFmiArea> area;
+  NFmiAreaFactory::return_type area;
 
   if(has_option_p)
 	{

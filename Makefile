@@ -39,7 +39,7 @@ LIBS = -L$(libdir) \
 	-lboost_iostreams \
 	-lboost_thread \
 	-lboost_system \
-	-lfreetype -ljpeg -lpng -lbz2 -lz -lpthread
+	-lfreetype -ljpeg -lpng -lbz2 -lz -lpthread -lrt
 
 # Common library compiling template
 

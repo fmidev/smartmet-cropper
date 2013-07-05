@@ -16,6 +16,7 @@ class NFmiPoint;
 
 #include <imagine/NFmiColorTools.h>
 #include <imagine/NFmiImage.h>
+#include <newbase/NFmiAreaFactory.h>
 
 
 void usage(const std::string & theProgName);
@@ -25,7 +26,7 @@ void http_output_image(const std::string & theFile);
 const std::string cachename(const std::string & tehQueryString);
 bool not_modified(const std::string & theFile);
 bool http_output_cache(const char * theQueryString);
-std::auto_ptr<NFmiArea> create_map(const std::string & theMap);
+NFmiAreaFactory::return_type create_map(const std::string & theMap);
 const NFmiPoint find_location(const std::string & theName);
 const std::string get_suffix(const std::string & theFilename);
 void http_output_image(const Imagine::NFmiImage & theImage,
@@ -43,16 +44,16 @@ void parse_center_geometry(const std::string & theGeometry,
 						   int & width,
 						   int & height);
 
-std::auto_ptr<NFmiArea> parse_latlon_geometry(const std::string & theGeometry,
-											  int & xc,
-											  int & yc,
-											  int & width,
-											  int & height);
-std::auto_ptr<NFmiArea> parse_named_geometry(const std::string & theGeometry,
-											 int & xc,
-											 int & yc,
-											 int & width,
-											 int & height);
+NFmiAreaFactory::return_type parse_latlon_geometry(const std::string & theGeometry,
+												   int & xc,
+												   int & yc,
+												   int & width,
+												   int & height);
+NFmiAreaFactory::return_type parse_named_geometry(const std::string & theGeometry,
+												  int & xc,
+												  int & yc,
+												  int & width,
+												  int & height);
 std::auto_ptr<Imagine::NFmiImage> crop_corner(const Imagine::NFmiImage & theImage,
 											  int theX1,
 											  int theY1,

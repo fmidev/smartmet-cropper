@@ -10,6 +10,7 @@ Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
 BuildRequires: libsmartmet-newbase >= 13.7.3-1
 BuildRequires: libsmartmet-imagine >= 13.7.3-1
+BuildRequires: libsmartmet-webauthenticator >= 13.7.3-1
 BuildRequires: libjpeg
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
