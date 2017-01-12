@@ -1,27 +1,50 @@
-HTML = cropper
-PROG =	cropper cropper_auth
+MODULE = cropper
+SPEC = smartmet-cropper
 
-MAINFLAGS = -Wall -W -Wno-unused-parameter
+MAINFLAGS = -MMD -Wall -W -Wno-unused-parameter
 
-EXTRAFLAGS = -Werror -pedantic -Wpointer-arith -Wcast-qual \
-	-Wcast-align -Wwrite-strings -Wconversion -Winline \
-	-Wctor-dtor-privacy -Wnon-virtual-dtor -Wno-pmf-conversions \
-	-Wsign-promo -Wchar-subscripts -Wold-style-cast \
-	-Wredundant-decls -Woverloaded-virtual
+ifeq (6, $(RHEL_VERSION))
+  MAINFLAGS += -std=c++0x
+else
+  MAINFLAGS += -std=c++11 -fdiagnostics-color=always
+endif
 
-DIFFICULTFLAGS = -Weffc++ -Wunreachable-code -Wshadow
+EXTRAFLAGS = \
+	-Werror \
+	-Winline \
+	-Wpointer-arith \
+	-Wcast-qual \
+	-Wcast-align \
+	-Wwrite-strings \
+	-Wnon-virtual-dtor \
+	-Wno-pmf-conversions \
+	-Wsign-promo \
+	-Wchar-subscripts \
+	-Wredundant-decls \
+	-Woverloaded-virtual
+
+DIFFICULTFLAGS = \
+	-Wunreachable-code \
+	-Wconversion \
+	-Wctor-dtor-privacy \
+	-Weffc++ \
+	-Wold-style-cast \
+	-pedantic \
+	-Wshadow
 
 CC = g++
 
 # Default compiler flags
 
-CFLAGS = -DUNIX -O2 -DNDEBUG $(MAINFLAGS)
-LDFLAGS = -s
+DEFINES = -DUNIX
+
+CFLAGS = $(DEFINES) -O2 -DNDEBUG $(MAINFLAGS)
+LDFLAGS = 
 
 # Special modes
 
-CFLAGS_DEBUG = -DUNIX -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
-CFLAGS_PROFILE = -DUNIX -O2 -g -pg -DNDEBUG $(MAINFLAGS)
+CFLAGS_DEBUG = $(DEFINES) -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
+CFLAGS_PROFILE = $(DEFINES) -O2 -g -pg -DNDEBUG $(MAINFLAGS)
 
 LDFLAGS_DEBUG =
 LDFLAGS_PROFILE =
@@ -30,16 +53,11 @@ INCLUDES = -I$(includedir) \
 	-I$(includedir)/smartmet \
 	-I$(includedir)/smartmet/newbase
 
+
 LIBS = -L$(libdir) \
-	-lsmartmet_imagine \
-	-lsmartmet_newbase \
-	-lsmartmet_webauthenticator \
-	-lboost_regex \
-	-lboost_filesystem \
-	-lboost_iostreams \
-	-lboost_thread \
-	-lboost_system \
-	-lfreetype -ljpeg -lpng -lbz2 -lz -lpthread -lrt
+	-lsmartmet-imagine \
+	-lsmartmet-newbase \
+	-lboost_iostreams
 
 # Common library compiling template
 
@@ -70,15 +88,9 @@ endif
 
 # rpm variables
 
-CWP = $(shell pwd)
-BIN = $(shell basename $(CWP))
-
 rpmsourcedir=/tmp/$(shell whoami)/rpmbuild
 
-rpmerr = "There's no spec file ($(specfile)). RPM wasn't created. Please make a spec file or copy and rename it into $(specfile)"
-
-rpmversion := $(shell grep "^Version:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
-rpmrelease := $(shell grep "^Release:" $(HTML).spec  | cut -d\  -f 2 | tr . _)
+rpmexcludevcs := $(shell tar --help | grep -m 1 -o -- '--exclude-vcs')
 
 # Special modes
 
@@ -94,9 +106,10 @@ endif
 
 # Compilation directories
 
-vpath %.cpp source
+vpath %.cpp source main
 vpath %.h include
 vpath %.o $(objdir)
+vpath %.d $(objdir)
 
 # How to install
 
@@ -105,82 +118,72 @@ INSTALL_DATA = install -m 664
 
 # The files to be compiled
 
-SRCS = $(patsubst source/%,%,$(wildcard *.cpp source/*.cpp))
 HDRS = $(patsubst include/%,%,$(wildcard *.h include/*.h))
-OBJS = $(SRCS:%.cpp=%.o)
 
+MAINSRCS     = $(patsubst main/%,%,$(wildcard main/*.cpp))
+MAINPROGS    = $(MAINSRCS:%.cpp=%)
+MAINOBJS     = $(MAINSRCS:%.cpp=%.o)
+MAINOBJFILES = $(MAINOBJS:%.o=obj/%.o)
+
+SRCS     = $(patsubst source/%,%,$(wildcard source/*.cpp))
+OBJS     = $(SRCS:%.cpp=%.o)
 OBJFILES = $(OBJS:%.o=obj/%.o)
-
-MAINSRCS = $(PROG:%=%.cpp)
-SUBSRCS = $(filter-out $(MAINSRCS),$(SRCS))
-SUBOBJS = $(SUBSRCS:%.cpp=%.o)
-SUBOBJFILES = $(SUBOBJS:%.o=obj/%.o)
 
 INCLUDES := -Iinclude $(INCLUDES)
 
 # For make depend:
 
-ALLSRCS = $(wildcard *.cpp source/*.cpp)
+ALLSRCS = $(wildcard main/*.cpp source/*.cpp)
 
 .PHONY: test rpm
 
 # The rules
 
-all: objdir $(PROG)
-debug: objdir $(PROG)
-release: objdir $(PROG)
-profile: objdir $(PROG)
+all: objdir $(MAINPROGS)
+debug: objdir $(MAINPROGS)
+release: objdir $(MAINPROGS)
+profile: objdir $(MAINPROGS)
 
-$(PROG): % : $(SUBOBJS) %.o
-	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(SUBOBJFILES) $(LIBS)
+.SECONDEXPANSION:
+$(MAINPROGS): % : $(OBJS) %.o 
+	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
 
 clean:
-	rm -f $(PROG) $(OBJFILES) *~ source/*~ include/*~
+	rm -f $(MAINPROGS) $(OBJFILES) $(MAINOBJFILES)*~ source/*~ include/*~
+	rm -f obj/*.d
+
+format:
+	clang-format -i -style=file include/*.h source/*.cpp main/*.cpp
 
 install:
 	mkdir -p $(bindir)
-	@list='$(PROG)'; \
+	@list='$(MAINPROGS)'; \
 	for prog in $$list; do \
 	  echo $(INSTALL_PROG) $$prog $(bindir)/$$prog; \
 	  $(INSTALL_PROG) $$prog $(bindir)/$$prog; \
 	done
 
-depend:
-	gccmakedep -fDependencies -- $(CFLAGS) $(INCLUDES) -- $(ALLSRCS)
-
 test:
 	cd test && make test
-
-html::
-	mkdir -p ../../../../html/bin/$(HTML)
-	doxygen $(HTML).dox
 
 objdir:
 	@mkdir -p $(objdir)
 
-rpm: clean depend
-	if [ -a $(BIN).spec ]; \
+rpm: clean
+	@if [ -a $(SPEC).spec ]; \
 	then \
 	  mkdir -p $(rpmsourcedir) ; \
-	  tar --exclude-vcs -C ../ -cf $(rpmsourcedir)/smartmet-$(BIN).tar $(BIN) ; \
-	  gzip -f $(rpmsourcedir)/smartmet-$(BIN).tar ; \
-	  rpmbuild -ta $(rpmsourcedir)/smartmet-$(BIN).tar.gz ; \
-	  rm -f $(rpmsourcedir)/libsmartmet-$(LIB).tar.gz ; \
+	  tar $(rpmexcludevcs) -C ../ -cf $(rpmsourcedir)/$(SPEC).tar $(MODULE) ; \
+	  gzip -f $(rpmsourcedir)/$(SPEC).tar ; \
+	  TAR_OPTIONS=--wildcards rpmbuild -ta $(rpmsourcedir)/$(SPEC).tar.gz ; \
+	  rm -f $(rpmsourcedir)/$(SPEC).tar.gz ; \
 	else \
-	  echo $(rpmerr); \
+	  echo $(SPEC).spec missing; \
 	fi;
-
-tag:
-	cvs -f tag 'smartmet_$(HTML)_$(rpmversion)-$(rpmrelease)' .
-
 
 .SUFFIXES: $(SUFFIXES) .cpp
 
 .cpp.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $(objdir)/$@ $<
 
-# sstream haittaa
-qdpoint.o: qdpoint.cpp
-	$(CC) $(CFLAGS) -Wno-error $(INCLUDES) -c -o obj/$@ $<
-
--include Dependencies
+-include obj/*.d

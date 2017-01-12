@@ -11,24 +11,20 @@
 
 class CropperException
 {
-public:
-
-  CropperException(int theStatus, const std::string & theMessage)
-	: itsStatus(theStatus)
-	, itsMessage(theMessage)
-  { }
+ public:
+  CropperException(int theStatus, const std::string& theMessage)
+      : itsStatus(theStatus), itsMessage(theMessage)
+  {
+  }
 
   int status() const { return itsStatus; }
-  const std::string & what() const { return itsMessage; }
-
-private:
-  
+  const std::string& what() const { return itsMessage; }
+ private:
   CropperException();
   int itsStatus;
   std::string itsMessage;
-
 };
 
-#endif // CROPPEREXCEPTION_H
+#endif  // CROPPEREXCEPTION_H
 
 // ======================================================================
