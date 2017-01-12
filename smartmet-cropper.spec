@@ -16,6 +16,7 @@ Requires: smartmet-library-newbase >= 17.1.10
 Requires: smartmet-library-imagine >= 17.1.4
 Provides: cropper
 Provides: cropper_auth
+Obsoletes: libsmartmet-webauthenticator
 
 %description
 FMI cropper
