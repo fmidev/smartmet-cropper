@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: CGI utility for cropping images
 Name: %{RPMNAME}
-Version: 17.1.12
+Version: 17.2.13
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -41,6 +41,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
+* Mon Feb 13 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.2.13-1.fmi
+- Repackaged due to newbase API changes
+
 * Thu Jan 12 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.1.12-1.fmi
 - Switched to FMI open source naming conventions
 - Merged webauthenticator library into this package
