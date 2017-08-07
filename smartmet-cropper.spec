@@ -9,6 +9,7 @@ Group: Development/Tools
 URL: https://github.com/fmidev/smartmet-cropper
 Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
+BuildRequires: gcc-c++
 BuildRequires: make
 BuildRequires: smartmet-library-newbase-devel >= 17.1.10
 BuildRequires: smartmet-library-imagine-devel >= 17.1.4
