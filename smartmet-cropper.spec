@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: CGI utility for cropping images
 Name: %{RPMNAME}
-Version: 17.2.13
+Version: 17.8.28
 Release: 1%{?dist}.fmi
 License: FMI
 Group: Development/Tools
@@ -11,11 +11,11 @@ Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
 BuildRequires: gcc-c++
 BuildRequires: make
-BuildRequires: smartmet-library-newbase-devel >= 17.1.10
-BuildRequires: smartmet-library-imagine-devel >= 17.1.4
+BuildRequires: smartmet-library-newbase-devel >= 17.8.28
+BuildRequires: smartmet-library-imagine-devel >= 17.8.28
 BuildRequires: boost-devel
-Requires: smartmet-library-newbase >= 17.1.10
-Requires: smartmet-library-imagine >= 17.1.4
+Requires: smartmet-library-newbase >= 17.8.28
+Requires: smartmet-library-imagine >= 17.8.28
 Provides: cropper
 Provides: cropper_auth
 Obsoletes: libsmartmet-webauthenticator
@@ -43,6 +43,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cropper_auth
 
 %changelog
+* Mon Aug 28 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.8.28-1.fmi
+- Upgrade to boost 1.65
+
 * Mon Feb 13 2017 Mika Heiskanen <mika.heiskanen@fmi.fi> - 17.2.13-1.fmi
 - Repackaged due to newbase API changes
 
