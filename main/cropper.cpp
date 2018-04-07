@@ -9,10 +9,10 @@
  */
 // ======================================================================
 
-#include "CropperTools.h"
 #include "CropperException.h"
-#include <iostream>
+#include "CropperTools.h"
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 

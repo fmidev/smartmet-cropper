@@ -19,6 +19,7 @@ class CropperException
 
   int status() const { return itsStatus; }
   const std::string& what() const { return itsMessage; }
+
  private:
   CropperException();
   int itsStatus;

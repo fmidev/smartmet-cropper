@@ -14,7 +14,6 @@
 #include <imagine/NFmiFreeType.h>
 #include <imagine/NFmiImage.h>
 #include <imagine/NFmiImageTools.h>
-#include <imagine/NFmiImageTools.h>
 #include <imagine/NFmiPath.h>
 #include <newbase/NFmiArea.h>
 #include <newbase/NFmiAreaFactory.h>
@@ -38,7 +37,8 @@
 #include "unistd.h"
 
 #ifdef UNIX
-extern "C" {
+extern "C"
+{
 #include <syslog.h>
 }
 #endif
@@ -180,10 +180,12 @@ void http_output_image(const string &theFile)
   string mime = Imagine::NFmiImageTools::MimeType(theFile);
 
   cout << "Status: 200 OK\n"
-       << "Content-Type: image/" << mime << '\n' << "Expires: " << format_time(expiration_time)
-       << '\n' << "Last-Modified: " << format_time(last_modified) << '\n'
+       << "Content-Type: image/" << mime << '\n'
+       << "Expires: " << format_time(expiration_time) << '\n'
+       << "Last-Modified: " << format_time(last_modified) << '\n'
        << "Cache-Control: max-age=" << maxage << ", public" << '\n'
-       << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << '\n' << endl
+       << "Content-Length: " << NFmiFileSystem::FileSize(theFile) << '\n'
+       << endl
        << in.rdbuf();
   in.close();
 }
@@ -1263,7 +1265,7 @@ int domain(int argc, const char *argv[])
     if (http_output_cache(getenv("QUERY_STRING"))) return 0;
   }
 
-// Make log entry
+  // Make log entry
 
 #ifdef UNIX
   if (syslog_active && syslog_level >= 1 && getenv("QUERY_STRING") != 0)

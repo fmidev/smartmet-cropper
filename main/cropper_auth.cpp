@@ -8,12 +8,12 @@
  */
 // ======================================================================
 
-#include "CropperTools.h"
 #include "CropperException.h"
+#include "CropperTools.h"
 #include "WebAuthenticator.h"
 
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 

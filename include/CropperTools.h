@@ -8,8 +8,8 @@
 #ifndef CROPPERTOOLS_H
 #define CROPPERTOOLS_H
 
-#include <string>
 #include <memory>
+#include <string>
 
 class NFmiArea;
 class NFmiPoint;
