@@ -119,7 +119,7 @@ bool WebAuthenticator::isValidQuery(const std::string& query)
         query.substr(exp_pos + EXPIRATION_SIZE, (md5_pos - exp_pos) - EXPIRATION_SIZE).c_str());
 
     // Compare expiration time to current unix timestamp
-    if (expiration_time < time(NULL))
+    if (expiration_time < time(nullptr))
     {
       // This authentication ticket is expired
       return false;
