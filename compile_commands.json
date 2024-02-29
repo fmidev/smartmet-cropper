@@ -1,0 +1,52 @@
+[
+    {
+        "command": "c++ -c -DUNIX -O0 -g -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/cropper_auth.o /home/mheiskan/hub/cropper/main/cropper_auth.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/main/cropper_auth.cpp"
+    }, 
+    {
+        "command": "c++ -c -DUNIX -O0 -g -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/CropperTools.o /home/mheiskan/hub/cropper/source/CropperTools.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/source/CropperTools.cpp"
+    }, 
+    {
+        "command": "c++ -c -DUNIX -O0 -g -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/WebAuthenticator.o /home/mheiskan/hub/cropper/source/WebAuthenticator.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/source/WebAuthenticator.cpp"
+    }, 
+    {
+        "command": "c++ -c -DUNIX -O0 -g -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/md5.o /home/mheiskan/hub/cropper/source/md5.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/source/md5.cpp"
+    }, 
+    {
+        "command": "c++ -c -DUNIX -O0 -g -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/cropper.o /home/mheiskan/hub/cropper/main/cropper.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/main/cropper.cpp"
+    }, 
+    {
+        "command": "c++ -c -O0 -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -g -DUNIX -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/WebAuthenticator.o /home/mheiskan/hub/cropper/source/WebAuthenticator.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/source/WebAuthenticator.cpp"
+    }, 
+    {
+        "command": "c++ -c -O0 -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -g -DUNIX -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/md5.o /home/mheiskan/hub/cropper/source/md5.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/source/md5.cpp"
+    }, 
+    {
+        "command": "c++ -c -O0 -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -g -DUNIX -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/cropper.o /home/mheiskan/hub/cropper/main/cropper.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/main/cropper.cpp"
+    }, 
+    {
+        "command": "c++ -c -O0 -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -g -DUNIX -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/cropper_auth.o /home/mheiskan/hub/cropper/main/cropper_auth.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/main/cropper_auth.cpp"
+    }, 
+    {
+        "command": "c++ -c -O0 -Wall -W -Wno-unused-parameter -std=c++11 -fdiagnostics-color=always -Werror -Winline -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wnon-virtual-dtor -Wno-pmf-conversions -Wsign-promo -Wchar-subscripts -Wredundant-decls -Woverloaded-virtual -Werror -g -DUNIX -I/home/mheiskan/hub/cropper/include -I/usr/include -I/usr/include/smartmet -I/usr/include/smartmet/newbase -o obj/CropperTools.o /home/mheiskan/hub/cropper/source/CropperTools.cpp", 
+        "directory": "/home/mheiskan/hub/cropper", 
+        "file": "/home/mheiskan/hub/cropper/source/CropperTools.cpp"
+    }
+]
